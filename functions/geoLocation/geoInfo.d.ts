@@ -1,0 +1,4 @@
+interface GeoInfo {
+  geohash: string
+}
+
