@@ -1,9 +1,25 @@
+import { DocumentReference } from '../firestoreTypes';
+
 export interface Gym {
   name: String;
   address: Address;
   businessHours: [Any];
   equipments: []
   equipmentTypes: []
+}
+
+export interface Equipments {
+  type: DocumentReference
+  typeId: Number
+  name: String
+  brand?: DocumentReference
+  number: Number
+}
+
+export interface Weights extends Equipments {
+  min: Number
+  max: Number
+  collections?: [Number]
 }
 
 export interface EquipmentCategory {
