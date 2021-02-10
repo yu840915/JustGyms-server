@@ -1,11 +1,16 @@
 import { DocumentReference } from '../firestoreTypes';
 
-export interface Gym {
+export interface Gym extends GeoLocation {
   name: String;
   address: Address;
   businessHours: [Any];
-  equipments: []
-  equipmentTypes: []
+  equipments: [Equipments]
+  capacity: Number
+  hourlyRate: Price
+
+  equipmentTypes: [String];
+  townId: Number;
+  countyId: Number;
 }
 
 export interface Equipments {
