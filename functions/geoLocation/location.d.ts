@@ -1,6 +1,5 @@
-interface GeoLocation {
-  geohash: String
-  lat: Number,
-  lon: Number,
+export interface GeoLocation {
+  geohash: String;
+  lat: Number;
+  lon: Number;
 }
-

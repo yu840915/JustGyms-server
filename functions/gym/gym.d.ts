@@ -1,4 +1,5 @@
 import { DocumentReference } from '../firestoreTypes';
+import { GeoLocation } from '../geoLocation/location';
 
 export interface Gym extends GeoLocation {
   name: String;
@@ -8,7 +9,7 @@ export interface Gym extends GeoLocation {
   capacity: Number
   hourlyRate: Price
 
-  equipmentTypes: [String];
+  equipmentTypes: [Number];
   townId: Number;
   countyId: Number;
 }

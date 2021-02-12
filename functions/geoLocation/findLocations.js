@@ -7,6 +7,7 @@ const turf = require('@turf/turf');
  */
 const findCounty = async ({ lat, lon }) => {
   const radiusInM = 30 * 1000;
+
   const bounds = geofire.geohashQueryBounds([lat, lon], radiusInM);
   const queries = [];
   for (const bound of bounds) {
@@ -38,4 +39,45 @@ const findFeaturesContainingCoord = ({ snaps, lat, lon }) => {
   return retVals;
 };
 
-module.exports = { findCounty };
+/**
+ * @param {{lat: Number, lon: Number, collectionRef: import('../firestoreTypes').CollectionReference, radiusInM: Number}}
+ */
+const findNearbyFeaturesInCollection = async ({
+  collectionRef,
+  lat,
+  lon,
+  radiusInM,
+}) => {
+  const bounds = geofire.geohashQueryBounds([lat, lon], radiusInM);
+  const queries = [];
+  for (const bound of bounds) {
+    queries.push(
+      collectionRef.orderBy('geohash').startAt(bound[0]).endAt(bound[1]).get()
+    );
+  }
+  const features = await Promise.all(queries).then((snaps) => {
+    return filterNearbyFeatures({ snaps, lat, lon, radiusInM });
+  });
+  return features;
+};
+
+/**
+ * @param {{snaps: import('../firestoreTypes').QuerySnapshot, lat: Number, lon: Number, radiusInM: Number}}
+ */
+const filterNearbyFeatures = ({ snaps, lat, lon, radiusInM }) => {
+  const origin = turf.point([lon, lat]);
+  const features = [];
+  for (const snap of snaps.docs) {
+    /**
+     * @type {GeoLocation}
+     */
+    const { lat, lon } = snap.data();
+    const pt = turf.point([lon, lat]);
+    if (turf.distance(origin, pt, { units: 'meters' }) < radiusInM) {
+      features.push(snap);
+    }
+    return features;
+  }
+};
+
+module.exports = { findCounty, findNearbyFeaturesInCollection };

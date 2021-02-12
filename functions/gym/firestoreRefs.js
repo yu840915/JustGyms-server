@@ -10,5 +10,6 @@ module.exports = {
   equipmentCategoriesRef: firestore.collection(equipmentCategories),
   equipmentTypes,
   equipmentTemplates,
+  gymsRef: firestore.collection(gyms),
   gyms,
 };
