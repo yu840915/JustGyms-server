@@ -62,22 +62,25 @@ const findNearbyFeaturesInCollection = async ({
 };
 
 /**
- * @param {{snaps: import('../firestoreTypes').QuerySnapshot, lat: Number, lon: Number, radiusInM: Number}}
+ * @param {{snaps: import('../firestoreTypes').QuerySnapshot[], lat: Number, lon: Number, radiusInM: Number}}
  */
 const filterNearbyFeatures = ({ snaps, lat, lon, radiusInM }) => {
   const origin = turf.point([lon, lat]);
   const features = [];
-  for (const snap of snaps.docs) {
+
+  for (const snap of snaps) {
     /**
      * @type {GeoLocation}
      */
-    const { lat, lon } = snap.data();
-    const pt = turf.point([lon, lat]);
-    if (turf.distance(origin, pt, { units: 'meters' }) < radiusInM) {
-      features.push(snap);
+    for (const docSnap of snap.docs) {
+      const { lat, lon } = docSnap.data();
+      const pt = turf.point([lon, lat]);
+      if (turf.distance(origin, pt, { units: 'meters' }) < radiusInM) {
+        features.push(docSnap);
+      }
     }
-    return features;
   }
+  return features;
 };
 
 module.exports = { findCounty, findNearbyFeaturesInCollection };

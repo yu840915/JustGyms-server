@@ -8,7 +8,7 @@ const equipmentTemplates = 'equipmentTemplates';
 module.exports = {
   firestore,
   equipmentCategoriesRef: firestore.collection(equipmentCategories),
-  equipmentTypes,
+  equipmentTypesRef: firestore.collection(equipmentTypes),
   equipmentTemplates,
   gymsRef: firestore.collection(gyms),
   gyms,

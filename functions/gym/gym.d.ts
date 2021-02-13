@@ -1,3 +1,4 @@
+import Joi from 'joi';
 import { DocumentReference } from '../firestoreTypes';
 import { GeoLocation } from '../geoLocation/location';
 
@@ -5,27 +6,33 @@ export interface Gym extends GeoLocation {
   name: String;
   address: Address;
   businessHours: [Any];
-  equipments: [Equipments]
-  capacity: Number
-  hourlyRate: Price
+  equipments: [Equipments];
+  hourlyRate: Price;
+  capacity?: Number;
 
   equipmentTypes: [Number];
   townId: Number;
   countyId: Number;
 }
 
+export interface BusinessHours {
+  dayOfWeek?: String;
+  start: Number;
+  end: Number;
+}
+
 export interface Equipments {
-  type: DocumentReference
-  typeId: Number
-  name: String
-  brand?: DocumentReference
-  number: Number
+  type: DocumentReference;
+  typeId: Number;
+  name: String;
+  brand?: DocumentReference;
+  number: Number;
 }
 
 export interface Weights extends Equipments {
-  min: Number
-  max: Number
-  collections?: [Number]
+  min: Number;
+  max: Number;
+  collections?: [Number];
 }
 
 export interface EquipmentCategory {
@@ -39,14 +46,13 @@ export interface EquipmentType {
   name: String;
 }
 
-
-interface Fare {
+export interface Fare {
   type: 'hourlyRate';
   unit: 'hour';
   price: Price;
 }
 
-interface Price {
+export interface Price {
   amount: Number;
   currency: String;
 }

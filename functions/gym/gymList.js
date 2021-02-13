@@ -3,9 +3,10 @@ const { firebaseAdmin } = require('../firestore');
 const geofire = require('geofire-common');
 const { gymsRef } = require('./firestoreRefs');
 const { findNearbyFeaturesInCollection } = require('../geoLocation');
+const { formatGymListResult } = require('./formatters');
 
 /**
- * @param {{lat: Number, lon: Number, radiusInM: Number, equipmentTypes?: [Number], sortBy?: 'proximity'| 'price'}}
+ * @param {{lat: Number, lon: Number, radiusInM: Number, equipmentTypes?: [Number], sortBy?: 'proximity'| 'price' }
  */
 const findNearbyGyms = async ({
   lat,
@@ -13,9 +14,10 @@ const findNearbyGyms = async ({
   radiusInM,
   equipmentTypes,
   sortBy = 'proximity',
+  formatResults = formatGymListResult,
 }) => {
   const snaps = await proximitySearch({ lat, lon, radiusInM });
-  let result = [];
+  let results = [];
   if (equipmentTypes && equipmentTypes.length > 0) {
     for (const snap of snaps) {
       /**
@@ -26,24 +28,28 @@ const findNearbyGyms = async ({
         return gymEqs.findIndex(e) !== -1;
       });
       if (matchedEquipmentTypes.length > 0) {
-        result.push = {
+        results.push = {
           matchedEquipmentTypes,
           snap,
         };
       }
     }
   } else {
-    result = snaps.map((snap) => {
+    results = snaps.map((snap) => {
       return {
         snap,
       };
     });
   }
   if (sortBy === 'price') {
-    result = sortResultByPrice(result);
+    results = sortResultByPrice(results);
   } else {
-    result = sortResultByProximity(result, { lat, lon });
+    results = sortResultByProximity(results, { lat, lon });
   }
+  if (formatResults) {
+    return formatResults(results);
+  }
+  return results;
 };
 
 /**
@@ -102,4 +108,4 @@ const proximitySearch = async ({ lat, lon, radiusInM }) => {
   });
 };
 
-module.exports = {};
+module.exports = { findNearbyGyms };

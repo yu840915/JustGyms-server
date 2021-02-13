@@ -1,12 +1,13 @@
 const { firebaseAdmin } = require('../firestore');
 const geofire = require('geofire-common');
-const { firestore, gyms } = require('./firestoreRefs');
+const { firestore, gyms, equipmentTypesRef } = require('./firestoreRefs');
 
 /**
  * @param {import('./gym').Gym} gymInfo
  */
 const createGym = async (gymInfo) => {
   const { lat, lon, equipments } = gymInfo;
+  transformEquipmentInput(equipments);
   const geohash = geofire.geohashForLocation([lat, lon]);
   const gymRef = firestore.collection(gyms).doc();
 
@@ -21,6 +22,15 @@ const createGym = async (gymInfo) => {
     ),
   };
   gymRef.create(data);
+};
+
+/**
+ * @param {[import('./gym').Equipments]} input
+ */
+const transformEquipmentInput = (input) => {
+  for (const item of input) {
+    item.type = equipmentTypesRef.doc(`${item.typeId}`);
+  }
 };
 
 /**
