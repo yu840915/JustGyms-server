@@ -1,15 +1,22 @@
 const { firebaseAdmin } = require('../firestore');
 const geofire = require('geofire-common');
 const { firestore, gyms, equipmentTypesRef } = require('./firestoreRefs');
+const { findTown } = require('../geoLocation');
 
 /**
  * @param {import('./gym').Gym} gymInfo
  */
 const createGym = async (gymInfo) => {
   const { lat, lon, equipments } = gymInfo;
+
   transformEquipmentInput(equipments);
   const geohash = geofire.geohashForLocation([lat, lon]);
   const gymRef = firestore.collection(gyms).doc();
+  const town = await findTown({ lat, lon });
+  /**
+   *  @type {import('../geoLocation/location').TownProperties}
+   */
+  const { townId, countyId } = town.properties;
 
   /**
    * @type {import('./gym').Gym}
@@ -17,11 +24,11 @@ const createGym = async (gymInfo) => {
   const data = {
     ...gymInfo,
     geohash,
-    equipmentTypes: firebaseAdmin.firestore.FieldValue.arrayUnion(
-      equipments.map((e) => e.typeId)
-    ),
+    equipmentTypes: [...new Set(equipments.map((e) => e.typeId))],
+    townId,
+    countyId,
   };
-  gymRef.create(data);
+  await gymRef.create(data);
 };
 
 /**

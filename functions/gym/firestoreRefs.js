@@ -9,7 +9,7 @@ module.exports = {
   firestore,
   equipmentCategoriesRef: firestore.collection(equipmentCategories),
   equipmentTypesRef: firestore.collection(equipmentTypes),
-  equipmentTemplates,
+  equipmentTemplatesRef: firestore.collection(equipmentTemplates),
   gymsRef: firestore.collection(gyms),
   gyms,
 };

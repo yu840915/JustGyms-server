@@ -1,6 +1,7 @@
 const geofire = require('geofire-common');
 const { countiesRef, towns } = require('./firestoreRefs');
 const turf = require('@turf/turf');
+const { firestore } = require('../firestore');
 
 /**
  * @param {{lat: number, lon: number}}
@@ -15,10 +16,37 @@ const findCounty = async ({ lat, lon }) => {
       countiesRef.orderBy('geohash').startAt(bound[0]).endAt(bound[1]).get()
     );
   }
-  const counties = await Promise.all(queries).then((snaps) => {
+  /**
+   * @type {[import('@turf/turf').Feature]}
+   */
+  const list = await Promise.all(queries).then((snaps) => {
     return findFeaturesContainingCoord({ snaps, lat, lon });
   });
-  return counties;
+  return list && list.length > 0 ? list[0] : null;
+};
+
+const findTown = async ({ lat, lon }) => {
+  const radiusInM = 10 * 1000;
+
+  const bounds = geofire.geohashQueryBounds([lat, lon], radiusInM);
+  const queries = [];
+  for (const bound of bounds) {
+    queries.push(
+      firestore
+        .collectionGroup(towns)
+        .orderBy('geohash')
+        .startAt(bound[0])
+        .endAt(bound[1])
+        .get()
+    );
+  }
+  /**
+   * @type {[import('@turf/turf').Feature]}
+   */
+  const list = await Promise.all(queries).then((snaps) => {
+    return findFeaturesContainingCoord({ snaps, lat, lon });
+  });
+  return list && list.length > 0 ? list[0] : null;
 };
 
 /**
@@ -83,4 +111,4 @@ const filterNearbyFeatures = ({ snaps, lat, lon, radiusInM }) => {
   return features;
 };
 
-module.exports = { findCounty, findNearbyFeaturesInCollection };
+module.exports = { findCounty, findTown, findNearbyFeaturesInCollection };

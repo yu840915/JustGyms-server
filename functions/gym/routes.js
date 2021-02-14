@@ -3,6 +3,7 @@ const validator = require('express-joi-validation').createValidator({});
 const validationRules = require('./validationRules');
 const { createGym } = require('./editGym');
 const { findNearbyGyms } = require('./gymList');
+const { getEquipmentTemplateList } = require('./equipmentTemplateList');
 const { asyncRequestHandler } = require('../firebaseFunctions');
 
 const app = express.Router();
@@ -22,7 +23,7 @@ app.get(
   asyncRequestHandler(async (req, res) => {
     const { lat, lon, d, e, sort } = req.query;
     res.send(
-      findNearbyGyms({
+      await findNearbyGyms({
         lat,
         lon,
         radiusInM: d,
@@ -30,6 +31,13 @@ app.get(
         sortBy: sort,
       })
     );
+  })
+);
+
+app.get(
+  '/equipments',
+  asyncRequestHandler(async (req, res) => {
+    res.send(await getEquipmentTemplateList());
   })
 );
 
