@@ -5,7 +5,7 @@ import { GeoLocation } from '../geoLocation/location';
 export interface Gym extends GeoLocation {
   name: String;
   address: Address;
-  businessHours: [Any];
+  businessHours: [BusinessHours];
   equipments: [Equipments];
   hourlyRate: Price;
   capacity?: Number;
