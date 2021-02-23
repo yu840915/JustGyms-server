@@ -13,7 +13,7 @@ const updateCounties = async () => {
     const countyRef = countiesRef.doc(`${countyId}`);
     const pointOfFeature = turf.pointOnFeature(feature, { countyId, county });
     feature.properties = { countyId, county };
-    const [lon, lat] = pointOfFeature.geometry.coordinates;
+    const [lon, lat] = turf.getCoord(pointOfFeature);
     const geohash = geofire.geohashForLocation([lat, lon]);
     batch.set(countyRef, {
       lon,
@@ -50,7 +50,7 @@ const updateTowns = async () => {
     const townRef = countyRef.collection(towns).doc(townId);
     const pointOfFeature = turf.pointOnFeature(feature, { countyId, county });
     feature.properties = { countyId, county, town, townId };
-    const [lon, lat] = pointOfFeature.geometry.coordinates;
+    const [lon, lat] = turf.getCoord(pointOfFeature);
     const geohash = geofire.geohashForLocation([lat, lon]);
     batch.set(townRef, {
       lon,

@@ -1,10 +1,11 @@
-import Joi from 'joi';
 import { DocumentReference } from '../firestoreTypes';
 import { GeoLocation } from '../geoLocation/location';
 
 export interface Gym extends GeoLocation {
+  pictures: [String];
   name: String;
-  address: Address;
+  address: String;
+  phones: [String];
   businessHours: [BusinessHours];
   equipments: [Equipments];
   hourlyRate: Price;
