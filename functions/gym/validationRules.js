@@ -41,6 +41,10 @@ const gymList = Joi.object({
   sort: Joi.string().allow(null, 'proximity', 'price'),
   desc: Joi.boolean(),
 });
-Joi.object;
+const gymMarkers = Joi.object({
+  ...coordinatesPrimitives,
+  d: Joi.number().positive().required(),
+  e: CSVArray.stringArray().items(Joi.number()),
+});
 
-module.exports = { createGym, gymList };
+module.exports = { createGym, gymList, gymMarkers };

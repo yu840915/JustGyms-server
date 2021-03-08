@@ -2,7 +2,10 @@ const express = require('express');
 const validator = require('express-joi-validation').createValidator({});
 const validationRules = require('./validationRules');
 const { createGym } = require('./editGym');
-const { findNearbyGyms } = require('./gymList');
+const {
+  findNearbyGyms,
+  findNearbyGymsAndConvertToMapMarkers,
+} = require('./gymList');
 const { getEquipmentTemplateList } = require('./equipmentTemplateList');
 const { asyncRequestHandler } = require('../firebaseFunctions');
 
@@ -29,6 +32,22 @@ app.get(
         radiusInM: d,
         equipmentTypes: e,
         sortBy: sort,
+      })
+    );
+  })
+);
+
+app.get(
+  '/markers',
+  validator.query(validationRules.gymMarkers),
+  asyncRequestHandler(async (req, res) => {
+    const { lat, lon, d, e } = req.query;
+    res.send(
+      await findNearbyGymsAndConvertToMapMarkers({
+        lat,
+        lon,
+        radiusInM: d,
+        equipmentTypes: e,
       })
     );
   })
