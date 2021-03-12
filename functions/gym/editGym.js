@@ -2,12 +2,20 @@ const { firebaseAdmin } = require('../firestore');
 const geofire = require('geofire-common');
 const { firestore, gyms, equipmentTypesRef } = require('./firestoreRefs');
 const { findTown } = require('../geoLocation');
+const { geocode } = require('../geoLocation');
+const { createClientError } = require('../clientError');
 
 /**
  * @param {import('./gym').Gym} gymInfo
  */
 const createGym = async (gymInfo) => {
-  const { id = null, lat, lon, equipments, phones = [] } = gymInfo;
+  const { id = null, address, equipments, phones = [] } = gymInfo;
+  let { lat = null, lon = null } = gymInfo;
+  if (!lat || !lon) {
+    const location = await getLatLonFromAddress(address);
+    lat = location.lat;
+    lon = location.lng;
+  }
 
   transformEquipmentInput(equipments);
   const geohash = geofire.geohashForLocation([lat, lon]);
@@ -23,6 +31,8 @@ const createGym = async (gymInfo) => {
    */
   const data = {
     ...gymInfo,
+    lat,
+    lon,
     geohash,
     equipmentTypes: [...new Set(equipments.map((e) => e.typeId))],
     phones,
@@ -30,6 +40,14 @@ const createGym = async (gymInfo) => {
     countyId,
   };
   await gymRef.create(data);
+};
+
+const getLatLonFromAddress = async (address) => {
+  const results = await geocode(address);
+  if (results.length > 1) {
+    throw createClientError(409, `查到 ${results.length} 筆結果`);
+  }
+  return results[0].geometry.location;
 };
 
 /**
@@ -74,11 +92,11 @@ const deleteGym = async ({ gymId }) => {
 /**
  * @param {[String]} images
  */
-const setImages = async (images) => {
+const setImages = async (gymId, images) => {
   firestore.runTransaction(async (t) => {
     const gymSnap = await t.get(firestore.collection(gyms).doc(gymId));
     if (!gymSnap.exists) {
-      throw Error;
+      throw createClientError(404, '場地不存在');
     }
     /**
      * @type {import('./gym').Gym}

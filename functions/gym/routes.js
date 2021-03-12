@@ -68,8 +68,9 @@ app.put(
   '/:gymId/images',
   validator.body(validationRules.imagesUrls),
   asyncRequestHandler(async (req, res) => {
+    const { gymId } = req.params;
     const { images } = req.body;
-    await setImages(images);
+    await setImages(gymId, images);
     res.sendStatus(200);
   })
 );
