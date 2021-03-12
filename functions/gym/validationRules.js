@@ -26,11 +26,13 @@ const coordinatesPrimitives = {
 
 const createGym = Joi.object({
   ...coordinatesPrimitives,
+  id: Joi.string(),
   name: Joi.string().required(),
+  phones: Joi.array().items(Joi.string().regex(/^0[\d]{7,9}$/)), //Taiwan phone number
   equipments: Joi.array().items(equipment).required(),
-  hourlyRate: price.required(),
+  hourlyRate: price,
   address: Joi.string().required(),
-  capacity: Joi.number().required(),
+  capacity: Joi.number(),
   businessHours: Joi.array().items(businessHours).required(),
 });
 
@@ -41,10 +43,15 @@ const gymList = Joi.object({
   sort: Joi.string().allow(null, 'proximity', 'price'),
   desc: Joi.boolean(),
 });
+
 const gymMarkers = Joi.object({
   ...coordinatesPrimitives,
   d: Joi.number().positive().required(),
   e: CSVArray.stringArray().items(Joi.number()),
 });
 
-module.exports = { createGym, gymList, gymMarkers };
+const imagesUrls = Joi.object({
+  images: Joi.array().items(Joi.string().uri()).default([]),
+});
+
+module.exports = { createGym, gymList, gymMarkers, imagesUrls };

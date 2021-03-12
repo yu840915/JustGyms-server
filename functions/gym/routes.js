@@ -1,13 +1,17 @@
 const express = require('express');
 const validator = require('express-joi-validation').createValidator({});
 const validationRules = require('./validationRules');
-const { createGym } = require('./editGym');
+const { createGym, setImages } = require('./editGym');
 const {
   findNearbyGyms,
   findNearbyGymsAndConvertToMapMarkers,
 } = require('./gymList');
 const { getEquipmentTemplateList } = require('./equipmentTemplateList');
 const { asyncRequestHandler } = require('../firebaseFunctions');
+const {
+  generateUploadUrlForGymImage,
+  generateDownloadUrlForGymImage,
+} = require('./images');
 
 const app = express.Router();
 
@@ -57,6 +61,43 @@ app.get(
   '/equipments',
   asyncRequestHandler(async (req, res) => {
     res.send(await getEquipmentTemplateList());
+  })
+);
+
+app.put(
+  '/:gymId/images',
+  validator.body(validationRules.imagesUrls),
+  asyncRequestHandler(async (req, res) => {
+    const { images } = req.body;
+    await setImages(images);
+    res.sendStatus(200);
+  })
+);
+
+app.get(
+  '/:gymId/images/:imageId',
+  asyncRequestHandler(async (req, res) => {
+    const { gymId, imageId } = req.params;
+    const url = await generateDownloadUrlForGymImage({
+      gymId,
+      filename: imageId,
+    });
+    res.setHeader('Location', url);
+    res.sendStatus(302);
+  })
+);
+
+app.post(
+  '/:gymId/images/signed-url',
+  asyncRequestHandler(async (req, res) => {
+    const { gymId } = req.params;
+    const { imageId } = req.body;
+    const result = await generateUploadUrlForGymImage({
+      gymId,
+      filename: imageId,
+    });
+    res.setHeader('Location', result.signedUrl);
+    res.send(result);
   })
 );
 

@@ -7,11 +7,11 @@ const { findTown } = require('../geoLocation');
  * @param {import('./gym').Gym} gymInfo
  */
 const createGym = async (gymInfo) => {
-  const { lat, lon, equipments } = gymInfo;
+  const { id = null, lat, lon, equipments, phones = [] } = gymInfo;
 
   transformEquipmentInput(equipments);
   const geohash = geofire.geohashForLocation([lat, lon]);
-  const gymRef = firestore.collection(gyms).doc();
+  const gymRef = firestore.collection(gyms).doc(id);
   const town = await findTown({ lat, lon });
   /**
    *  @type {import('../geoLocation/location').TownProperties}
@@ -25,6 +25,7 @@ const createGym = async (gymInfo) => {
     ...gymInfo,
     geohash,
     equipmentTypes: [...new Set(equipments.map((e) => e.typeId))],
+    phones,
     townId,
     countyId,
   };
@@ -70,8 +71,26 @@ const deleteGym = async ({ gymId }) => {
   });
 };
 
+/**
+ * @param {[String]} images
+ */
+const setImages = async (images) => {
+  firestore.runTransaction(async (t) => {
+    const gymSnap = await t.get(firestore.collection(gyms).doc(gymId));
+    if (!gymSnap.exists) {
+      throw Error;
+    }
+    /**
+     * @type {import('./gym').Gym}
+     */
+    const update = { images };
+    t.update(gymSnap.ref, update);
+  });
+};
+
 module.exports = {
   createGym,
   updateGym,
   deleteGym,
+  setImages,
 };

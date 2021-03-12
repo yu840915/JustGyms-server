@@ -2,7 +2,7 @@ import { DocumentReference } from '../firestoreTypes';
 import { GeoLocation } from '../geoLocation/location';
 
 export interface Gym extends GeoLocation {
-  pictures: [String];
+  images: [String];
   name: String;
   address: String;
   phones: [String];
