@@ -20,8 +20,8 @@ const businessHours = Joi.object({
 });
 
 const coordinatesPrimitives = {
-  lon: Joi.number().max(180).min(-180).required(),
-  lat: Joi.number().max(90).min(-90).required(),
+  lon: Joi.number().max(180).min(-180),
+  lat: Joi.number().max(90).min(-90),
 };
 
 const createGym = Joi.object({
@@ -33,6 +33,15 @@ const createGym = Joi.object({
   hourlyRate: price,
   address: Joi.string().required(),
   capacity: Joi.number(),
+  facilities: Joi.array().items(
+    Joi.string().allow(
+      'changingRoom',
+      'toilet',
+      'locker',
+      'firstAid',
+      'waterDispenser'
+    )
+  ),
   businessHours: Joi.array().items(businessHours).required(),
 });
 

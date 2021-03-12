@@ -10,6 +10,9 @@ export interface Gym extends GeoLocation {
   equipments: [Equipments];
   hourlyRate: Price;
   capacity?: Number;
+  facilities: [
+    'changingRoom' | 'toilet' | 'locker' | 'firstAid' | 'waterDispenser'
+  ];
 
   equipmentTypes: [Number];
   townId: Number;
