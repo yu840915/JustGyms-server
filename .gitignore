@@ -131,6 +131,7 @@ yarn.lock
 *.iml
 *.tgz
 scripts/*.json
+.runtimeconfig.json
 
 lib/
 dev/
