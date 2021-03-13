@@ -6,7 +6,7 @@
  */
 const createClientError = (code, message) => {
   const err = new Error(message);
-  err.code = code;
+  err.statusCode = code;
   return err;
 };
 

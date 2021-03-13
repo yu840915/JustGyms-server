@@ -1,6 +1,11 @@
 const { firebaseAdmin } = require('../firestore');
 const geofire = require('geofire-common');
-const { firestore, gyms, equipmentTypesRef } = require('./firestoreRefs');
+const {
+  firestore,
+  gyms,
+  equipmentTypesRef,
+  gymsRef,
+} = require('./firestoreRefs');
 const { findTown } = require('../geoLocation');
 const { geocode } = require('../geoLocation');
 const { createClientError } = require('../clientError');
@@ -10,6 +15,11 @@ const { createClientError } = require('../clientError');
  */
 const createGym = async (gymInfo) => {
   const { id = null, address, equipments, phones = [] } = gymInfo;
+  const gymRef = id ? gymsRef.doc(id) : gymsRef.doc();
+  const gymSnap = await gymRef.get();
+  if (gymSnap.exists) {
+    throw createClientError(409, '此 ID 已被使用');
+  }
   let { lat = null, lon = null } = gymInfo;
   if (!lat || !lon) {
     const location = await getLatLonFromAddress(address);
@@ -19,7 +29,6 @@ const createGym = async (gymInfo) => {
 
   transformEquipmentInput(equipments);
   const geohash = geofire.geohashForLocation([lat, lon]);
-  const gymRef = firestore.collection(gyms).doc(id);
   const town = await findTown({ lat, lon });
   /**
    *  @type {import('../geoLocation/location').TownProperties}
@@ -39,7 +48,14 @@ const createGym = async (gymInfo) => {
     townId,
     countyId,
   };
-  await gymRef.create(data);
+  try {
+    await gymRef.create(data);
+  } catch (error) {
+    if (error.code === 6) {
+      throw createClientError(409, '此 ID 已被使用');
+    }
+    throw error;
+  }
 };
 
 const getLatLonFromAddress = async (address) => {

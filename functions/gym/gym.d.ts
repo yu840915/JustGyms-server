@@ -21,8 +21,8 @@ export interface Gym extends GeoLocation {
 
 export interface BusinessHours {
   dayOfWeek?: String;
-  start: Number;
-  end: Number;
+  start: String;
+  end: String;
 }
 
 export interface Equipments {

@@ -15,8 +15,15 @@ const equipment = Joi.object({
 });
 
 const businessHours = Joi.object({
-  start: Joi.number().required(),
-  end: Joi.number().required(),
+  dayOfWeek: Joi.string()
+    .allow('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun')
+    .only(),
+  start: Joi.string()
+    .regex(/^[\d]{2}:[\d]{2}$/)
+    .required(),
+  end: Joi.string()
+    .regex(/^[\d]{2}:[\d]{2}$/)
+    .required(),
 });
 
 const coordinatesPrimitives = {
