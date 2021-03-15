@@ -1,8 +1,8 @@
-const { log } = require('firebase-functions/lib/logger');
 const { functions } = require('./firebaseFunctions');
 // const { initEquipmentTemplates } = require('./gym/initGyms');
-const { geocode } = require('./geoLocation');
+const { findCounty } = require('./geoLocation');
 
 module.exports = functions.pubsub.schedule('00 00 * * *').onRun(async () => {
-  await geocode('台北市松山區南京東路四段13巷3-1');
+  const county = await findCounty({ lat: 25.052472, lon: 121.549954 });
+  console.log(county);  
 });

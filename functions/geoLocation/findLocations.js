@@ -53,13 +53,13 @@ const findTown = async ({ lat, lon }) => {
  * @type {{snaps: import('../firestore').QuerySnapshot, lat: number, lon: number}}
  */
 const findFeaturesContainingCoord = ({ snaps, lat, lon }) => {
-  const points = turf.points([[lon, lat]]);
+  const point = turf.point([lon, lat]);
   const retVals = [];
   for (const snap of snaps) {
     for (const docSnap of snap.docs) {
       const { geojson } = docSnap.data();
       const feature = JSON.parse(geojson);
-      if (turf.pointsWithinPolygon(points, feature).features.length > 0) {
+      if (turf.booleanPointInPolygon(point, feature)) {
         retVals.push(feature);
       }
     }

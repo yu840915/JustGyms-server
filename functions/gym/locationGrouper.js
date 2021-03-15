@@ -8,8 +8,12 @@ const groupGyms = ({ gyms, lat, lon, radiusInM }) => {
   const grids = getHexGrids({ lat, lon, radiusInM });
   for (const feature of features) {
     const idx = grids.findIndex((grid) =>
-      turf.pointsWithinPolygon([feature], grid)
+      turf.booleanPointInPolygon(feature, grid)
     );
+    const matches = grids.filter((grid) =>
+      turf.booleanPointInPolygon(feature, grid)
+    );
+    console.log(`${matches.length} / ${grids.length}`);
     if (idx === -1) {
       continue;
     }
@@ -31,6 +35,7 @@ const groupGyms = ({ gyms, lat, lon, radiusInM }) => {
       collections.push(collection);
     }
   }
+  console.log(collections.length);
   return turf.featureCollection(collections);
 };
 
@@ -62,16 +67,18 @@ const formCollectionFromGrid = (grid) => {
  * @param {{lat: Number, lon: Number, radiusInM: Number}}
  */
 const getHexGrids = ({ lat, lon, radiusInM }) => {
+  console.log(radiusInM);
   const bbox = turf.bbox(
     turf.circle([lon, lat], radiusInM, { units: 'meters', steps: 4 })
   );
-  const grids = turf.hexGrid(bbox, Math.max(radiusInM / 10, 30), {
+  const grids = turf.hexGrid(bbox, Math.max(radiusInM / 2, 30), {
     units: 'meters',
   }).features;
 
   for (const grid of grids) {
     grid.properties.center = turf.center(grid);
     grid.properties.features = [];
+    console.log(grid.properties.center);
   }
   return grids;
 };
