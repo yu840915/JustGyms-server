@@ -4,7 +4,7 @@ const geofire = require('geofire-common');
 const { gymsRef } = require('./firestoreRefs');
 const { findNearbyFeaturesInCollection } = require('../geoLocation');
 const { formatGymListResult } = require('./formatters');
-const { groupGyms } = require('./locationGrouper');
+const { wrapGyms } = require('./locationGrouper');
 
 /**
  * @param {{lat: Number, lon: Number, radiusInM: Number, equipmentTypes?: [Number], sortBy?: 'proximity'| 'price' }
@@ -126,7 +126,7 @@ const findNearbyGymsAndConvertToMapMarkers = async ({
     equipmentTypes,
     formatResults,
   });
-  return groupGyms({ gyms, lat, lon, radiusInM });
+  return wrapGyms(gyms);
 };
 
 module.exports = { findNearbyGyms, findNearbyGymsAndConvertToMapMarkers };

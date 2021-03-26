@@ -1,6 +1,20 @@
 const turf = require('@turf/turf');
 
 /**
+ * @param {[import('./gym').Gym]} gyms
+ */
+const wrapGyms = (gyms) => {
+  const collections = gyms.map((gym) => {
+    const feature = turf.point([gym.lon, gym.lat], gym);
+    return turf.point(
+      feature.geometry.coordinates,
+      turf.featureCollection([feature])
+    );
+  });
+  return turf.featureCollection(collections);
+};
+
+/**
  * @param {{gyms: [import('./gym').Gym], lat: Number, lon: Number, radiusInM: Number}}
  */
 const groupGyms = ({ gyms, lat, lon, radiusInM }) => {
@@ -71,7 +85,7 @@ const getHexGrids = ({ lat, lon, radiusInM }) => {
   const bbox = turf.bbox(
     turf.circle([lon, lat], radiusInM, { units: 'meters', steps: 4 })
   );
-  const grids = turf.hexGrid(bbox, Math.max(radiusInM / 2, 30), {
+  const grids = turf.hexGrid(bbox, Math.max(radiusInM / 10, 30), {
     units: 'meters',
   }).features;
 
@@ -85,4 +99,5 @@ const getHexGrids = ({ lat, lon, radiusInM }) => {
 
 module.exports = {
   groupGyms,
+  wrapGyms,
 };

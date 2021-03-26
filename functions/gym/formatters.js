@@ -16,6 +16,7 @@ const formatGymListResult = (results) => {
       equipmentTypes,
       businessHours,
       hourlyRate,
+      phones,
     } = snap.data();
     return {
       id: snap.id,
@@ -27,6 +28,7 @@ const formatGymListResult = (results) => {
       equipmentTypes,
       businessHours,
       hourlyRate,
+      phones,
     };
   });
 };

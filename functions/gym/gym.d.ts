@@ -8,6 +8,7 @@ export interface Gym extends GeoLocation {
   phones: [String];
   businessHours: [BusinessHours];
   equipments: [Equipments];
+  pricing: [Fare];
   hourlyRate: Price;
   capacity?: Number;
   facilities: [
@@ -51,8 +52,8 @@ export interface EquipmentType {
 }
 
 export interface Fare {
-  type: 'hourlyRate';
-  unit: 'hour';
+  unit: 'hour' | 'time' | 'min' | 'day';
+  amount: Number;
   price: Price;
 }
 

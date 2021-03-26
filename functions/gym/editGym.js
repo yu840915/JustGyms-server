@@ -14,7 +14,7 @@ const { createClientError } = require('../clientError');
  * @param {import('./gym').Gym} gymInfo
  */
 const createGym = async (gymInfo) => {
-  const { id = null, address, equipments, phones = [] } = gymInfo;
+  const { id = null, address, equipments, phones = [], pricing } = gymInfo;
   const gymRef = id ? gymsRef.doc(id) : gymsRef.doc();
   const gymSnap = await gymRef.get();
   if (gymSnap.exists) {
@@ -47,6 +47,7 @@ const createGym = async (gymInfo) => {
     phones,
     townId,
     countyId,
+    hourlyRate: lowestHourlyRate(pricing),
   };
   try {
     await gymRef.create(data);
@@ -56,6 +57,49 @@ const createGym = async (gymInfo) => {
     }
     throw error;
   }
+};
+
+/**
+ * @param {[import('./gym').Fare]} pricing
+ * @returns
+ */
+const lowestHourlyRate = (pricing) => {
+  if (!pricing) {
+    return null;
+  }
+  /**
+   * @type {import('./gym').Price}
+   */
+  let min;
+  for (const fare of pricing) {
+    const rate = estimateHourlyRate(fare);
+    if (!min || min.amount > rate.amount) {
+      min = rate;
+    }
+  }
+  return min;
+};
+
+/**
+ * @param {import('./gym').Fare} fare
+ */
+const estimateHourlyRate = (fare) => {
+  let hour = 1;
+  if (fare.unit === 'hour') {
+    hour = fare.amount;
+  } else if (fare.unit === 'time' || fare.unit === 'day') {
+    hour = 3;
+  } else if (fare.unit === 'min') {
+    hour = fare.amount / 60;
+  }
+  /**
+   * @type {import('./gym').Price}
+   */
+  const price = {
+    amount: fare.price.amount / hour,
+    currency: fare.price.currency,
+  };
+  return price;
 };
 
 const getLatLonFromAddress = async (address) => {

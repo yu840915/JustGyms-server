@@ -6,6 +6,12 @@ const price = Joi.object({
   currency: Joi.string().required(),
 });
 
+const fare = Joi.object({
+  unit: Joi.string().allow('hour', 'time', 'min', 'day').only().required(),
+  amount: Joi.number().required(),
+  price,
+});
+
 const equipment = Joi.object({
   typeId: Joi.number().required(),
   name: Joi.string().required(),
@@ -37,7 +43,7 @@ const createGym = Joi.object({
   name: Joi.string().required(),
   phones: Joi.array().items(Joi.string().regex(/^0[\d]{7,9}$/)), //Taiwan phone number
   equipments: Joi.array().items(equipment).required(),
-  hourlyRate: price,
+  pricing: Joi.array().items(fare),
   address: Joi.string().required(),
   capacity: Joi.number(),
   facilities: Joi.array().items(
