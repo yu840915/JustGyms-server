@@ -46,6 +46,7 @@ const createGym = Joi.object({
   pricing: Joi.array().items(fare),
   address: Joi.string().required(),
   capacity: Joi.number(),
+  pageLink: Joi.string().uri(),
   facilities: Joi.array().items(
     Joi.string().allow(
       'changingRoom',

@@ -64,7 +64,7 @@ const createGym = async (gymInfo) => {
  * @returns
  */
 const lowestHourlyRate = (pricing) => {
-  if (!pricing) {
+  if (!pricing || pricing.length === 0) {
     return null;
   }
   /**
