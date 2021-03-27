@@ -2,13 +2,13 @@ const Joi = require('joi');
 const { CSVArray } = require('../validatorExtensions');
 
 const price = Joi.object({
-  amount: Joi.number().required(),
+  amount: Joi.number().positive().required(),
   currency: Joi.string().required(),
 });
 
 const fare = Joi.object({
   unit: Joi.string().allow('hour', 'time', 'min', 'day').only().required(),
-  amount: Joi.number().required(),
+  amount: Joi.number().positive().required(),
   price,
 });
 

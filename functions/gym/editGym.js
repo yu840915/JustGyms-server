@@ -87,8 +87,14 @@ const estimateHourlyRate = (fare) => {
   let hour = 1;
   if (fare.unit === 'hour') {
     hour = fare.amount;
-  } else if (fare.unit === 'time' || fare.unit === 'day') {
+  } else if (fare.unit === 'time') {
     hour = 3;
+  } else if (fare.unit === 'day') {
+    if (fare.amount < 7) {
+      hour = 3 * fare.amount;
+    } else {
+      hour = 3 * 0.5 * fare.amount;
+    }
   } else if (fare.unit === 'min') {
     hour = fare.amount / 60;
   }
@@ -96,7 +102,7 @@ const estimateHourlyRate = (fare) => {
    * @type {import('./gym').Price}
    */
   const price = {
-    amount: fare.price.amount / hour,
+    amount: Math.round(fare.price.amount / hour),
     currency: fare.price.currency,
   };
   return price;
