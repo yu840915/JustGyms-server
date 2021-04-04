@@ -95,12 +95,12 @@ const parseBusinessHours = (businessHours) => {
     );
   }
 
-  const weekdays = ['mon', 'tue', 'wed', 'thu', 'fir', 'sat', 'sun'];
+  const weekdays = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
   /**
    * @type {[import('./gym').BusinessHours]}
    */
   const retVals = weekdays.map((e) => {
-    const val = specialCases[e] ?? base;
+    const val = specialCases[e] || base;
     /**
      * @type {import('./gym').BusinessHours}
      */

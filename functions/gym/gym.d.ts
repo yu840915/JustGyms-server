@@ -6,6 +6,7 @@ export interface Gym extends GeoLocation {
   name: String;
   address: String;
   phones: [String];
+  pageLink: String;
   businessHours: [BusinessHours];
   equipments: [Equipments];
   pricing: [Fare];
@@ -14,7 +15,6 @@ export interface Gym extends GeoLocation {
   facilities: [
     'changingRoom' | 'toilet' | 'locker' | 'firstAid' | 'waterDispenser'
   ];
-
   equipmentTypes: [Number];
   townId: Number;
   countyId: Number;

@@ -15,6 +15,7 @@ const formatGymListResult = (results) => {
       equipments,
       equipmentTypes,
       businessHours,
+      pricing = [],
       hourlyRate,
       phones,
     } = snap.data();
@@ -27,6 +28,7 @@ const formatGymListResult = (results) => {
       equipments: equipments.map(formatEquipments),
       equipmentTypes,
       businessHours,
+      pricing,
       hourlyRate,
       phones,
     };

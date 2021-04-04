@@ -85,7 +85,7 @@ const sortResultByProximity = (result, { lat, lon }) => {
     /**
      * @type {import('./gym').Gym}
      */
-    const gymB = a.snap.data();
+    const gymB = b.snap.data();
     const pointB = turf.point([gymB.lon, gymB.lat]);
     return (
       turf.distance(origin, pointA, { units: 'meters' }) -
