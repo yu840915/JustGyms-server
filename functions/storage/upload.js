@@ -14,6 +14,7 @@ const generateUploadUrl = async ({
   expires,
 }) => {
   const ref = bucket.file(`${collection}/${filename}`);
+  console.log(`Will generate signed url for ${ref}`);
   const url = await ref.getSignedUrl({
     action: 'resumable',
     version: 'v4',

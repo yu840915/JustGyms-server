@@ -7,7 +7,7 @@ const {
   gymsRef,
 } = require('./firestoreRefs');
 const { findTown } = require('../geoLocation');
-const { geocode } = require('../geoLocation');
+const { geocode } = require('../geocode');
 const { createClientError } = require('../clientError');
 
 /**

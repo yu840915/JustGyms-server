@@ -90,6 +90,7 @@ app.get(
 
 app.post(
   '/:gymId/images/signed-url',
+  validator.body(validationRules.uploadUrl),
   asyncRequestHandler(async (req, res) => {
     const { gymId } = req.params;
     const { imageId } = req.body;

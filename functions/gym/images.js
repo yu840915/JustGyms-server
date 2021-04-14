@@ -15,7 +15,7 @@ const generateUploadUrlForGymImage = async ({ gymId, filename }) => {
     collection: `gymImages/${gymId}`,
     filename,
   });
-  const path = `/gymImages/${gymId}/images/filename`;
+  const path = `/gymImages/${gymId}/images/${filename}`;
   return {
     signedUrl,
     path,

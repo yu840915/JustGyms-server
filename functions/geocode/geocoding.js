@@ -29,4 +29,3 @@ const geocode = async (address) => {
 module.exports = {
   geocode,
 };
-//https://maps.googleapis.com/maps/api/geocode/json?address=台北市松山區南京東路四段13巷3-1&key=AIzaSyBXoHy5VAJODIpy3etPWpXA4cL1f9gNIVY

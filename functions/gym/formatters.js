@@ -8,6 +8,7 @@ const formatGymListResult = (results) => {
      * @type {import('./gym').Gym}
      */
     const {
+      images,
       name,
       lat,
       lon,
@@ -18,8 +19,10 @@ const formatGymListResult = (results) => {
       pricing = [],
       hourlyRate,
       phones,
+      facilities,
     } = snap.data();
     return {
+      images,
       id: snap.id,
       name,
       lat,
@@ -31,6 +34,7 @@ const formatGymListResult = (results) => {
       pricing,
       hourlyRate,
       phones,
+      facilities,
     };
   });
 };
