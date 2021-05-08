@@ -4,6 +4,7 @@ export interface GeocodeResponse {
 }
 
 export interface GeocodeResult {
+  formatted_address: String;
   geometry: {
     location: {
       lat: Number;

@@ -1,17 +1,20 @@
 const express = require('express');
 const validator = require('express-joi-validation').createValidator({});
 const validationRules = require('./validationRules');
-const { geocode } = require('./geocoding');
+const { addressSearch } = require('./geocoding');
 const { asyncRequestHandler } = require('../firebaseFunctions');
+const { formatAddressSearchResult } = require('./formatters');
 
 const app = express.Router();
 
 app.get(
-  '',
-  validator.query(validationRules.geocode),
+  '/search',
+  validator.query(validationRules.search),
   asyncRequestHandler(async (req, res) => {
-    const { q } = req.query;
-    res.send(await geocode(q));
+    const { q, country } = req.query;
+    const language = req.headers['content-language'];
+    const results = await addressSearch({ address: q, language, country });
+    res.send(results.map(formatAddressSearchResult));
   })
 );
 

@@ -1,7 +1,8 @@
 const Joi = require('joi');
 
-const geocode = Joi.object({
+const search = Joi.object({
   q: Joi.string().required(),
+  country: Joi.string().length(2).uppercase().allow('TW'),
 });
 
-module.exports = { geocode };
+module.exports = { search };
