@@ -69,6 +69,10 @@ const gymList = Joi.object({
   desc: Joi.boolean(),
 });
 
+const gymId = Joi.object({
+  gymId: Joi.string().alphanum().required(),
+});
+
 const gymMarkers = Joi.object({
   ...coordinatesPrimitives,
   d: Joi.number().positive().required(),
