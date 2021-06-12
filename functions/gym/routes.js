@@ -44,15 +44,6 @@ app.get(
 );
 
 app.get(
-  '/:gymId',
-  validator.params(validationRules.gymId),
-  asyncRequestHandler(async (req, res) => {
-    const { gymId } = req.params;
-    res.send(await getDetail({ gymId }));
-  })
-);
-
-app.get(
   '/markers',
   validator.query(validationRules.gymMarkers),
   asyncRequestHandler(async (req, res) => {
@@ -72,6 +63,15 @@ app.get(
   '/equipments',
   asyncRequestHandler(async (req, res) => {
     res.send(await getEquipmentTemplateList());
+  })
+);
+
+app.get(
+  '/:gymId',
+  validator.params(validationRules.gymId),
+  asyncRequestHandler(async (req, res) => {
+    const { gymId } = req.params;
+    res.send(await getDetail({ gymId }));
   })
 );
 
