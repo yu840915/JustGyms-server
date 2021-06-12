@@ -2,9 +2,12 @@
  * @param {[{snap: import('../firestoreTypes').QueryDocumentSnapshot}]} results
  */
 const formatGymListResult = (results) => {
-  return results.map(formatGymSnap);
+  return results.map((e) => formatGymSnap(e.snap));
 };
 
+/**
+ * @param {import('../firestoreTypes').QueryDocumentSnapshot} snap
+ */
 const formatGymSnap = (snap) => {
   /**
    * @type {import('./gym').Gym}

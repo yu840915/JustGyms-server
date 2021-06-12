@@ -83,4 +83,11 @@ const imagesUrls = Joi.object({
   images: Joi.array().items(Joi.string().uri()).default([]),
 });
 
-module.exports = { createGym, gymList, gymMarkers, imagesUrls, uploadUrl };
+module.exports = {
+  createGym,
+  gymList,
+  gymMarkers,
+  imagesUrls,
+  uploadUrl,
+  gymId,
+};
