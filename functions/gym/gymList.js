@@ -1,10 +1,11 @@
 const turf = require('@turf/turf');
-const { firebaseAdmin } = require('../firestore');
+const { firebaseAdmin, firestore } = require('../firestore');
 const geofire = require('geofire-common');
 const { gymsRef } = require('./firestoreRefs');
 const { findNearbyFeaturesInCollection } = require('../geoLocation');
-const { formatGymListResult } = require('./formatters');
+const { formatGymListResult, formatGymSnap } = require('./formatters');
 const { wrapGyms } = require('./locationGrouper');
+const { createClientError } = require('../clientError');
 
 /**
  * @param {{lat: Number, lon: Number, radiusInM: Number, equipmentTypes?: [Number], sortBy?: 'proximity'| 'price' }
@@ -129,4 +130,22 @@ const findNearbyGymsAndConvertToMapMarkers = async ({
   return wrapGyms(gyms);
 };
 
-module.exports = { findNearbyGyms, findNearbyGymsAndConvertToMapMarkers };
+/**
+ * @param {{gymId: String, formatResults: any}}
+ */
+const getDetail = async ({ gymId, formatResults = formatGymSnap }) => {
+  const snap = await gymsRef.doc(gymId).get();
+  if (!snap.exists) {
+    throw createClientError(404);
+  }
+  if (formatResults) {
+    return formatResults(snap);
+  }
+  return snap;
+};
+
+module.exports = {
+  findNearbyGyms,
+  findNearbyGymsAndConvertToMapMarkers,
+  getDetail,
+};

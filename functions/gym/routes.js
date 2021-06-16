@@ -5,6 +5,8 @@ const { createGym, setImages } = require('./editGym');
 const {
   findNearbyGyms,
   findNearbyGymsAndConvertToMapMarkers,
+  getGymsByIds,
+  getDetail,
 } = require('./gymList');
 const { getEquipmentTemplateList } = require('./equipmentTemplateList');
 const { asyncRequestHandler } = require('../firebaseFunctions');
@@ -61,6 +63,15 @@ app.get(
   '/equipments',
   asyncRequestHandler(async (req, res) => {
     res.send(await getEquipmentTemplateList());
+  })
+);
+
+app.get(
+  '/:gymId',
+  validator.params(validationRules.gymId),
+  asyncRequestHandler(async (req, res) => {
+    const { gymId } = req.params;
+    res.send(await getDetail({ gymId }));
   })
 );
 

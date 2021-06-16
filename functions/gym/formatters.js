@@ -2,41 +2,45 @@
  * @param {[{snap: import('../firestoreTypes').QueryDocumentSnapshot}]} results
  */
 const formatGymListResult = (results) => {
-  return results.map((e) => {
-    const { snap } = e;
-    /**
-     * @type {import('./gym').Gym}
-     */
-    const {
-      images,
-      name,
-      lat,
-      lon,
-      address,
-      equipments,
-      equipmentTypes,
-      businessHours,
-      pricing = [],
-      hourlyRate,
-      phones,
-      facilities,
-    } = snap.data();
-    return {
-      images,
-      id: snap.id,
-      name,
-      lat,
-      lon,
-      address,
-      equipments: equipments.map(formatEquipments),
-      equipmentTypes,
-      businessHours,
-      pricing,
-      hourlyRate,
-      phones,
-      facilities,
-    };
-  });
+  return results.map((e) => formatGymSnap(e.snap));
+};
+
+/**
+ * @param {import('../firestoreTypes').QueryDocumentSnapshot} snap
+ */
+const formatGymSnap = (snap) => {
+  /**
+   * @type {import('./gym').Gym}
+   */
+  const {
+    images,
+    name,
+    lat,
+    lon,
+    address,
+    equipments,
+    equipmentTypes,
+    businessHours,
+    pricing = [],
+    hourlyRate,
+    phones,
+    facilities,
+  } = snap.data();
+  return {
+    images,
+    id: snap.id,
+    name,
+    lat,
+    lon,
+    address,
+    equipments: equipments.map(formatEquipments),
+    equipmentTypes,
+    businessHours,
+    pricing,
+    hourlyRate,
+    phones,
+    facilities,
+  };
 };
 
 /**
@@ -63,4 +67,5 @@ const formatEquipments = (equipments) => {
 module.exports = {
   formatEquipments,
   formatGymListResult,
+  formatGymSnap,
 };

@@ -69,6 +69,10 @@ const gymList = Joi.object({
   desc: Joi.boolean(),
 });
 
+const gymId = Joi.object({
+  gymId: Joi.string().alphanum().required(),
+});
+
 const gymMarkers = Joi.object({
   ...coordinatesPrimitives,
   d: Joi.number().positive().required(),
@@ -79,4 +83,11 @@ const imagesUrls = Joi.object({
   images: Joi.array().items(Joi.string().uri()).default([]),
 });
 
-module.exports = { createGym, gymList, gymMarkers, imagesUrls, uploadUrl };
+module.exports = {
+  createGym,
+  gymList,
+  gymMarkers,
+  imagesUrls,
+  uploadUrl,
+  gymId,
+};
