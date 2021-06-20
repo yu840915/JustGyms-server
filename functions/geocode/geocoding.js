@@ -2,7 +2,7 @@ const { request } = require('gaxios');
 const { api_key: apiKey } = require('firebase-functions').config().main_service;
 const { createClientError } = require('../clientError');
 
-const geocode = async (address, { language, country }) => {
+const geocode = async (address, { language, country } = {}) => {
   const params = {
     key: apiKey,
     address,
