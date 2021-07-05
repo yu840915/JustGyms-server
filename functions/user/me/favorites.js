@@ -1,32 +1,34 @@
-const { firebaseAdmin, favoritesRef } = require('./firestoreRefs');
+const { firebaseAdmin, favoritesRef } = require('../firestoreRefs');
 
 /**
- * @param {{user: import('../firestoreTypes').DocumentReference, gymIds: [String]}}
+ * @param {{user: import('../../firestoreTypes').DocumentReference, gymIds: [String]}}
  */
 const addGyms = async (user, { gymIds }) => {
   const ref = favoritesRef.doc(user.id);
   /**
-   * @type {import('./user').Favorites}
+   * @type {import('../user').Favorites}
    */
   const update = {
     user,
     gyms: firebaseAdmin.firestore.FieldValue.arrayUnion(gymIds),
   };
   await ref.set(update, { merge: true });
+  //TODO: use subcollection
 };
 
 /**
- * @param {{user: import('../firestoreTypes').DocumentReference, gymIds: [String]}}
+ * @param {{user: import('../../firestoreTypes').DocumentReference, gymIds: [String]}}
  */
 const removeGyms = async (user, { gymIds }) => {
   const ref = favoritesRef.doc(user.id);
   /**
-   * @type {import('./user').Favorites}
+   * @type {import('../user').Favorites}
    */
   const update = {
     gyms: firebaseAdmin.firestore.FieldValue.arrayRemove(gymIds),
   };
   await ref.set(update, { merge: true });
+  //TODO: use subcollection
 };
 
 const getGyms = async (user) => {
@@ -35,7 +37,7 @@ const getGyms = async (user) => {
     return [];
   }
   /**
-   * @type {import('./user').Favorites}
+   * @type {import('../user').Favorites}
    */
   const { gyms } = snap.data();
   return gyms || [];

@@ -5,6 +5,8 @@ app.use('/gyms', require('../gym').routes);
 
 app.use('/geocode', require('../geocode').routes);
 
+app.use('/me', require('../user/me').routes);
+
 app.get('/url', (req, res) =>
   res.send(require('../storage/upload').generateUploadUrl())
 );

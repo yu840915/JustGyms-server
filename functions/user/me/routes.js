@@ -1,6 +1,6 @@
 const express = require('express');
-const { authenticate } = require('../authenticate');
-const { asyncRequestHandler } = require('../firebaseFunctions');
+const { authenticate } = require('../../authenticate');
+const { asyncRequestHandler } = require('../../firebaseFunctions');
 const { addGyms, removeGyms } = require('./favorites');
 const validationRules = require('./validationRules');
 
