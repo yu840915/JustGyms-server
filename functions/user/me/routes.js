@@ -29,3 +29,5 @@ app.delete(
     res.sendStatus(204);
   })
 );
+
+module.exports = app;

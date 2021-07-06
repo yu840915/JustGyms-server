@@ -13,7 +13,6 @@ const addGyms = async (user, { gymIds }) => {
     gyms: firebaseAdmin.firestore.FieldValue.arrayUnion(gymIds),
   };
   await ref.set(update, { merge: true });
-  //TODO: use subcollection
 };
 
 /**
@@ -28,7 +27,6 @@ const removeGyms = async (user, { gymIds }) => {
     gyms: firebaseAdmin.firestore.FieldValue.arrayRemove(gymIds),
   };
   await ref.set(update, { merge: true });
-  //TODO: use subcollection
 };
 
 const getGyms = async (user) => {
