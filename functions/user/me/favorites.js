@@ -1,7 +1,8 @@
 const { firebaseAdmin, favoritesRef } = require('../firestoreRefs');
 
 /**
- * @param {{user: import('../../firestoreTypes').DocumentReference, gymIds: [String]}}
+ * @param {import('../../firestoreTypes').DocumentReference} user
+ * @param {{gymIds: [String]}}
  */
 const addGyms = async (user, { gymIds }) => {
   const ref = favoritesRef.doc(user.id);
@@ -10,13 +11,14 @@ const addGyms = async (user, { gymIds }) => {
    */
   const update = {
     user,
-    gyms: firebaseAdmin.firestore.FieldValue.arrayUnion(gymIds),
+    gyms: firebaseAdmin.firestore.FieldValue.arrayUnion(...gymIds),
   };
   await ref.set(update, { merge: true });
 };
 
 /**
- * @param {{user: import('../../firestoreTypes').DocumentReference, gymIds: [String]}}
+ * @param {import('../../firestoreTypes').DocumentReference} user
+ * @param {{gymIds: [String]}}
  */
 const removeGyms = async (user, { gymIds }) => {
   const ref = favoritesRef.doc(user.id);
@@ -24,7 +26,7 @@ const removeGyms = async (user, { gymIds }) => {
    * @type {import('../user').Favorites}
    */
   const update = {
-    gyms: firebaseAdmin.firestore.FieldValue.arrayRemove(gymIds),
+    gyms: firebaseAdmin.firestore.FieldValue.arrayRemove(...gymIds),
   };
   await ref.set(update, { merge: true });
 };

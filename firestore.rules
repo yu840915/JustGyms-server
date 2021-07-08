@@ -6,5 +6,10 @@ service cloud.firestore {
       	request.auth != null &&
         request.auth.uid == userId;
     }
+    match /favorites/{userId}/{document=**} {
+      allow read: if 
+      	request.auth != null &&
+        request.auth.uid == userId;
+    }
   }
 }
