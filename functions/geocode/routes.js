@@ -4,14 +4,14 @@ const validationRules = require('./validationRules');
 const { addressSearch } = require('./geocoding');
 const { asyncRequestHandler } = require('../firebaseFunctions');
 const { formatAddressSearchResult } = require('./formatters');
-const { authenticate } = require('../authenticate');
+const { verifyIdToken } = require('../authenticate');
 
 const app = express.Router();
 
 app.get(
   '/search',
   validator.query(validationRules.search),
-  authenticate,
+  verifyIdToken,
   asyncRequestHandler(async (req, res) => {
     const { q, country } = req.query;
     const language = req.headers['content-language'];
