@@ -2,11 +2,23 @@ const express = require('express');
 const { authenticate } = require('../../authenticate');
 const { asyncRequestHandler } = require('../../firebaseFunctions');
 const { addGyms, removeGyms } = require('./favorites');
+const { addFcmToken } = require('./addFcmToken');
 const validationRules = require('./validationRules');
 
 const validator = require('express-joi-validation').createValidator({});
 
 const app = express.Router();
+
+app.post(
+  '/fcm-tokens',
+  validator.body(validationRules.fcmToken),
+  authenticate,
+  asyncRequestHandler(async (req, res) => {
+    const { token } = req.body;
+    await addFcmToken({ userRef: req.userRef, token });
+    res.sendStatus(201);
+  })
+);
 
 app.patch(
   '/favorites/gyms',

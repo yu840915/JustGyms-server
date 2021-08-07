@@ -3,6 +3,7 @@ import { DocumentReference } from '../firestoreTypes';
 export interface User {
   name: String;
   cover: String;
+  fcmTokens?: [String];
 }
 
 export interface Favorites {
