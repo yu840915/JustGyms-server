@@ -2,7 +2,7 @@ const express = require('express');
 const { authenticate } = require('../../authenticate');
 const { asyncRequestHandler } = require('../../firebaseFunctions');
 const { addGyms, removeGyms } = require('./favorites');
-const { addFcmToken } = require('./addFcmToken');
+const { addFcmToken } = require('./fcmTokens');
 const validationRules = require('./validationRules');
 
 const validator = require('express-joi-validation').createValidator({});
