@@ -16,7 +16,9 @@ const addFcmToken = async ({ userRef, token }) => {
      * @type {import('../user').User}
      */
     let { fcmTokens = [], fcmTopics = [] } = snap.data();
-    fcmTokens.push(token);
+    if (fcmTokens.indexOf(token) === -1) {
+      fcmTokens.push(token);
+    }
     if (fcmTokens.length > 5) {
       fcmTokens = fcmTokens.slice(1, 5);
     }
