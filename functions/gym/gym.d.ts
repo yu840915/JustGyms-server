@@ -18,6 +18,7 @@ export interface Gym extends GeoLocation {
   equipmentTypes: [Number];
   townId: Number;
   countyId: Number;
+  admins: [DocumentReference];
 }
 
 export interface BusinessHours {

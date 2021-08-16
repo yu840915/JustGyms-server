@@ -41,23 +41,43 @@ const addFcmToken = async ({ userRef, token }) => {
 const addTopics = async ({ userRef, topics }) => {
   let completion = async () => {};
   await firestore.runTransaction(async (t) => {
-    const snap = await t.get(userRef);
-    /**
-     * @type {import('../user').User}
-     */
-    const { fcmTokens = [] } = snap.data();
-    /**
-     * @type  {import('../user').User}
-     */
-    const update = {
-      fcmTopics: firebaseAdmin.firestore.FieldValue.arrayUnion(topics),
-    };
-    t.update(userRef, update);
-    completion = async () => {
-      await subscribeTokensToTopics({ fcmTokens, topics });
-    };
+    completion = prepareTopicSubscriptionCompletion(t, { userRef, topics });
+    await addTopicToUserData(t, { userRef, topics });
   });
   await completion();
+};
+
+/**
+ * @param {import('../../firestoreTypes').Transaction} t
+ * @param {Object} param
+ * @param {import('../../firestoreTypes').DocumentReference} param.userRef
+ * @param {[String]} param.topics
+ */
+const addTopicToUserData = async (t, { userRef, topics }) => {
+  /**
+   * @type  {import('../user').User}
+   */
+  const update = {
+    fcmTopics: firebaseAdmin.firestore.FieldValue.arrayUnion(topics),
+  };
+  t.update(userRef, update);
+};
+
+/**
+ * @param {import('../../firestoreTypes').Transaction} t
+ * @param {Object} param
+ * @param {import('../../firestoreTypes').DocumentReference} param.userRef
+ * @param {[String]} param.topics
+ */
+const prepareTopicSubscriptionCompletion = async (t, { userRef, topics }) => {
+  const snap = await t.get(userRef);
+  /**
+   * @type {import('../user').User}
+   */
+  const { fcmTokens = [] } = snap.data();
+  return async () => {
+    await subscribeTokensToTopics({ fcmTokens, topics });
+  };
 };
 
 /**
@@ -114,4 +134,10 @@ const removeTopics = async ({ userRef, topics }) => {
   await completion();
 };
 
-module.exports = { addFcmToken, addTopics, removeTopics };
+module.exports = {
+  addFcmToken,
+  addTopics,
+  removeTopics,
+  addTopicToUserData,
+  prepareTopicSubscriptionCompletion,
+};
