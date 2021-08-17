@@ -1,4 +1,4 @@
-const { firestore } = require('../firestore');
+const { firestore, firebaseAdmin } = require('../firestore');
 
 const gyms = 'gyms';
 const equipmentCategories = 'equipmentCategories';
@@ -14,4 +14,5 @@ module.exports = {
   gymsRef: firestore.collection(gyms),
   changeLogs,
   gyms,
+  firebaseAdmin,
 };

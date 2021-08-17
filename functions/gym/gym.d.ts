@@ -21,6 +21,12 @@ export interface Gym extends GeoLocation {
   admins: [DocumentReference];
 }
 
+export interface ChangeLog {
+  date: Date;
+  type: 'adminAdded' | 'adminRemoved';
+  user: DocumentReference;
+}
+
 export interface BusinessHours {
   dayOfWeek?: String;
   start: String;
