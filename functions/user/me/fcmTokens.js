@@ -41,8 +41,11 @@ const addFcmToken = async ({ userRef, token }) => {
 const addTopics = async ({ userRef, topics }) => {
   let completion = async () => {};
   await firestore.runTransaction(async (t) => {
-    completion = prepareTopicSubscriptionCompletion(t, { userRef, topics });
-    await addTopicToUserData(t, { userRef, topics });
+    completion = await prepareTopicSubscriptionCompletion(t, {
+      userRef,
+      topics,
+    });
+    addTopicsToUserData(t, { userRef, topics });
   });
   await completion();
 };
@@ -53,7 +56,7 @@ const addTopics = async ({ userRef, topics }) => {
  * @param {import('../../firestoreTypes').DocumentReference} param.userRef
  * @param {[String]} param.topics
  */
-const addTopicToUserData = async (t, { userRef, topics }) => {
+const addTopicsToUserData = (t, { userRef, topics }) => {
   /**
    * @type  {import('../user').User}
    */
@@ -105,39 +108,71 @@ const subscribeTokensToTopics = async ({ fcmTokens, topics }) => {
 const removeTopics = async ({ userRef, topics }) => {
   let completion = async () => {};
   await firestore.runTransaction(async (t) => {
-    const snap = await t.get(userRef);
-    /**
-     * @type {import('../user').User}
-     */
-    const { fcmTokens = [] } = snap.data();
-    /**
-     * @type  {import('../user').User}
-     */
-    const update = {
-      fcmTopics: firebaseAdmin.firestore.FieldValue.arrayRemove(topics),
-    };
-    t.update(userRef, update);
-    completion = async () => {
-      if (fcmTokens.length === 0 || topics.length === 0) {
-        return;
-      }
-      await Promise.all(
-        topics.map(
-          async (topic) =>
-            await messaging
-              .unsubscribeFromTopic(fcmTokens, topic)
-              .catch(console.error)
-        )
-      );
-    };
+    completion = await prepareTopicUnsubscriptionCompletion(t, {
+      userRef,
+      topics,
+    });
+    removeTopicsFromUserData(t, { userRef, topics });
   });
   await completion();
+};
+
+/**
+ * @param {import('../../firestoreTypes').Transaction} t
+ * @param {Object} param
+ * @param {import('../../firestoreTypes').DocumentReference} param.userRef
+ * @param {[String]} param.topics
+ */
+const removeTopicsFromUserData = (t, { userRef, topics }) => {
+  /**
+   * @type  {import('../user').User}
+   */
+  const update = {
+    fcmTopics: firebaseAdmin.firestore.FieldValue.arrayRemove(topics),
+  };
+  t.update(userRef, update);
+};
+/**
+ * @param {import('../../firestoreTypes').Transaction} t
+ * @param {Object} param
+ * @param {import('../../firestoreTypes').DocumentReference} param.userRef
+ * @param {[String]} param.topics
+ */
+const prepareTopicUnsubscriptionCompletion = async (t, { userRef, topics }) => {
+  const snap = await t.get(userRef);
+  /**
+   * @type {import('../user').User}
+   */
+  const { fcmTokens = [] } = snap.data();
+  return async () => {
+    await unsubscribeTokensFromTopics({ fcmTokens, topics });
+  };
+};
+/**
+ * @param {Object} param
+ * @param {[String]} param.fcmTokens
+ * @param {[String]} param.topics
+ */
+const unsubscribeTokensFromTopics = async ({ fcmTokens, topics }) => {
+  if (fcmTokens.length === 0 || topics.length === 0) {
+    return;
+  }
+  await Promise.all(
+    topics.map(
+      async (topic) =>
+        await messaging
+          .unsubscribeFromTopic(fcmTokens, topic)
+          .catch(console.error)
+    )
+  );
 };
 
 module.exports = {
   addFcmToken,
   addTopics,
   removeTopics,
-  addTopicToUserData,
+  addTopicsToUserData,
   prepareTopicSubscriptionCompletion,
+  removeTopicsFromUserData,
+  prepareTopicUnsubscriptionCompletion,
 };
