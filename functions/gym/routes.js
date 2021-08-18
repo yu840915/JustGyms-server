@@ -8,12 +8,14 @@ const {
   getGymsByIds,
   getDetail,
 } = require('./gymList');
+const { addAdmin, removeAdmin } = require('./gymAdmin');
 const { getEquipmentTemplateList } = require('./equipmentTemplateList');
 const { asyncRequestHandler } = require('../firebaseFunctions');
 const {
   generateUploadUrlForGymImage,
   generateDownloadUrlForGymImage,
 } = require('./images');
+const { gymsRef } = require('./firestoreRefs');
 
 const app = express.Router();
 
@@ -77,6 +79,7 @@ app.get(
 
 app.put(
   '/:gymId/images',
+  validator.params(validationRules.gymId),
   validator.body(validationRules.imagesUrls),
   asyncRequestHandler(async (req, res) => {
     const { gymId } = req.params;
@@ -88,6 +91,7 @@ app.put(
 
 app.get(
   '/:gymId/images/:imageId',
+  validator.params(validationRules.gymId),
   asyncRequestHandler(async (req, res) => {
     const { gymId, imageId } = req.params;
     const url = await generateDownloadUrlForGymImage({
@@ -101,6 +105,7 @@ app.get(
 
 app.post(
   '/:gymId/images/signed-url',
+  validator.params(validationRules.gymId),
   validator.body(validationRules.uploadUrl),
   asyncRequestHandler(async (req, res) => {
     const { gymId } = req.params;
@@ -111,6 +116,28 @@ app.post(
     });
     res.setHeader('Location', result.signedUrl);
     res.send(result);
+  })
+);
+
+app.put(
+  '/:gymId/admins',
+  validator.params(validationRules.addAdmin),
+  validator.body(validationRules.editAdmin),
+  asyncRequestHandler(async (req, res) => {
+    const { gymId } = req.params;
+    const { user } = req.body;
+    await addAdmin({ userRef: user, gymRef: gymsRef.doc(gymId) });
+    res.sendStatus(204);
+  })
+);
+
+app.delete(
+  '/:gymId/admins/:user',
+  validator.params(validationRules.removeAdmin),
+  asyncRequestHandler(async (req, res) => {
+    const { gymId, user } = req.params;
+    await removeAdmin({ userRef: user, gymRef: gymsRef.doc(gymId) });
+    res.sendStatus(204);
   })
 );
 
