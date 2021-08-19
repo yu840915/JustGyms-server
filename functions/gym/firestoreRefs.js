@@ -4,7 +4,8 @@ const gyms = 'gyms';
 const equipmentCategories = 'equipmentCategories';
 const equipmentTypes = 'equipmentTypes';
 const equipmentTemplates = 'equipmentTemplates';
-const changeLogs = 'changeLogs';
+const changeLogs = 'gymChangeLogs';
+const appointments = 'gymAppointments';
 
 module.exports = {
   firestore,
@@ -15,4 +16,5 @@ module.exports = {
   changeLogs,
   gyms,
   firebaseAdmin,
+  appointments,
 };

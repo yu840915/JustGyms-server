@@ -68,3 +68,18 @@ export interface Price {
   amount: Number;
   currency: String;
 }
+
+export interface Appointment {
+  date: Date;
+  startTime: Date;
+  endTime: Date;
+  status: 'scheduled' | 'cancelled' | 'fulfilled' | 'missed';
+  type: 'reservation';
+  user: DocumentReference;
+  gym: DocumentReference;
+}
+
+export interface ReservationRequest {
+  startTime: Date;
+  endTime: Date;
+}
