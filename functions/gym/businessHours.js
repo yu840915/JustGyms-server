@@ -6,8 +6,31 @@ const weekdays = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
  * @param {[import('./gym').BusinessHours]} param.businessHours
  */
 const checkIsBusinessHour = ({ date, businessHours }) => {
-  //TODO: implement
-  return true;
+  businessHours = parseBusinessHours(businessHours);
+  const targetDayHours = businessHours[date.getDay()];
+
+  const start = convertHhmm(targetDayHours.start);
+  const startDate = new Date(date.toDateString());
+  startDate.setHours(start.hour);
+  startDate.setMinutes(start.min);
+  const end = convertHhmm(targetDayHours.end);
+  const endDate = new Date(date.toDateString());
+  endDate.setHours(end.hour);
+  endDate.setMinutes(end.min);
+  return (
+    startDate.getTime() <= date.getTime() && endDate.getTime() >= date.getTime()
+  );
+};
+
+/**
+ * @param {String} hhmm
+ */
+const convertHhmm = (hhmm) => {
+  const comps = hhmm.split(':');
+  return {
+    hour: Number.parseInt(comps[0]),
+    min: Number.parseInt(comps[1]),
+  };
 };
 
 /**

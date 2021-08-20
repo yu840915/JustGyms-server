@@ -70,9 +70,8 @@ export interface Price {
 }
 
 export interface Appointment {
-  date: Date;
-  startTime: Date;
-  endTime: Date;
+  startAt: Date;
+  endAt: Date;
   status: 'scheduled' | 'cancelled' | 'fulfilled' | 'missed';
   type: 'reservation';
   user: DocumentReference;
