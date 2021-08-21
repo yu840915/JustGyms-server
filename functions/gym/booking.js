@@ -1,4 +1,9 @@
-const { gymsRef, appointments, firestore } = require('./firestoreRefs');
+const {
+  gymsRef,
+  appointments,
+  firestore,
+  firebaseAdmin,
+} = require('./firestoreRefs');
 const { checkIsBusinessHour } = require('./businessHours');
 const { createClientError } = require('../clientError');
 
@@ -10,6 +15,7 @@ const { createClientError } = require('../clientError');
  * @param {Date} params.endAt
  */
 const book = async ({ userRef, gymRef, startAt, endAt }) => {
+  let onComplete = async () => {};
   await firestore.runTransaction(async (t) => {
     const gymSnap = await t.get(gymRef);
     /**
@@ -22,15 +28,29 @@ const book = async ({ userRef, gymRef, startAt, endAt }) => {
     if (!isBusinessHour) {
       throw createClientError(400, '請選擇場館開放時間');
     }
-    if ((await checkUserSchedule(t)) === false) {
+    if ((await checkUserSchedule(t, { userRef, startAt, endAt })) === false) {
       throw createClientError(400, '你已經有預約場館');
     }
-
     if ((await checkGymSchedule(t, { gymRef, startAt, endAt })) === false) {
       throw createClientError(400, '此時段場館已額滿');
     }
-    //create appointment
+
+    /** @type {import('./gym').Appointment} */
+    const appointment = {
+      user: userRef,
+      startAt,
+      endAt,
+      status: 'scheduled',
+      type: 'reservation',
+      gym: gymRef,
+      createdAt: firebaseAdmin.firestore.FieldValue.serverTimestamp(),
+    };
+    t.create(gymRef.collection(appointments).doc(), appointment);
+    onComplete = async () => {
+      //Send fcm to admins of gyms
+    };
   });
+  await onComplete().catch(console.error);
 };
 
 /**
@@ -57,8 +77,6 @@ const checkUserSchedule = async (t, { userRef, startAt, endAt }) => {
   );
   return startWithinSnap.size + endWithinSnap.size === 0;
 };
-
-/** @typedef {{date: Date, diff: 1 | -1}} VisitorChange */
 
 /**
  * @param {import('../firestoreTypes').Transaction} t
@@ -87,9 +105,37 @@ const checkGymSchedule = async (t, { gymSnap, startAt, endAt }) => {
   if (startWithinSnap.size + endWithinSnap.size + 1 < capacity) {
     return true;
   }
-
-  //TODO: Go through start end and check max concurrency start +1 end -1
-  //like that [start, end ,start ...]
+  const snaps = startWithinSnap.docs.concat(endWithinSnap.docs);
+  /** @type {[{date: Date, diff: 1 | -1}]} */
+  const visitorEvents = [];
+  const processed = {};
+  for (const snap of snaps) {
+    if (processed[snap.ref.id]) {
+      continue;
+    }
+    processed[snap.ref.id] = true;
+    /**
+     * @type {import('./gym').Appointment}
+     */
+    const { startAt, endAt } = snap.data();
+    visitorEvents.push({
+      date: startAt,
+      diff: 1,
+    });
+    visitorEvents.push({
+      date: endAt,
+      diff: -1,
+    });
+  }
+  visitorEvents.sort((a, b) => a.date.getTime() - b.date.getTime());
+  let concurrentVisitors = 0;
+  for (const event of visitorEvents) {
+    concurrentVisitors += event.diff;
+    if (concurrentVisitors >= capacity) {
+      return false;
+    }
+  }
+  return true;
 };
 
 module.exports = { book };
