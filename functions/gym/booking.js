@@ -21,7 +21,10 @@ const book = async ({ userRef, gymRef, startAt, endAt }) => {
     /**
      * @type {import('./gym').Gym}
      */
-    const { businessHours } = gymSnap.data();
+    const { businessHours, admins = [] } = gymSnap.data();
+    if (admins.length === 0) {
+      throw createClientError(400, '此場館還沒有預約功能');
+    }
     const isBusinessHour =
       checkIsBusinessHour({ date: startAt, businessHours }) &&
       checkIsBusinessHour({ date: startAt, businessHours });
