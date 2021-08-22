@@ -6,6 +6,8 @@ const {
 } = require('./firestoreRefs');
 const { checkIsBusinessHour } = require('./businessHours');
 const { createClientError } = require('../clientError');
+const { adminTopic } = require('./fcmTopics');
+const { sendFcmToTopic } = require('../sendFcm');
 
 /**
  * @param {Object} params
@@ -50,7 +52,23 @@ const book = async ({ userRef, gymRef, startAt, endAt }) => {
     };
     t.create(gymRef.collection(appointments).doc(), appointment);
     onComplete = async () => {
-      //Send fcm to admins of gyms
+      const dateFormat = new Intl.DateTimeFormat('zh-hant', {
+        weekday: 'narrow',
+        month: 'short',
+        day: 'numeric',
+      });
+      const timeFormat = new Intl.DateTimeFormat('zh-hant', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+      await sendFcmToTopic({
+        topic: adminTopic(gymRef),
+        content: {
+          title: `${dateFormat.format(startAt)})有新的預約`,
+          body: `${timeFormat.format(startAt)}
+          至${timeFormat.format(endAt)}`,
+        },
+      });
     };
   });
   await onComplete().catch(console.error);

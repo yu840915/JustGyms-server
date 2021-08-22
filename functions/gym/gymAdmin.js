@@ -6,6 +6,7 @@ const {
 } = require('../user/me/fcmTokens');
 const { changeLogs } = require('./firestoreRefs');
 const { firestore, firebaseAdmin } = require('./firestoreRefs');
+const { adminTopic } = require('./fcmTopics');
 
 /**
  * @param {Object} param
@@ -14,6 +15,7 @@ const { firestore, firebaseAdmin } = require('./firestoreRefs');
  */
 const addAdmin = async ({ userRef, gymRef }) => {
   let completion = async () => {};
+  const topics = [adminTopic(gymRef)];
   await firestore.runTransaction(async (t) => {
     completion = await prepareTopicSubscriptionCompletion(t, {
       userRef,
@@ -47,6 +49,7 @@ const addAdmin = async ({ userRef, gymRef }) => {
  */
 const removeAdmin = async ({ userRef, gymRef }) => {
   let completion = async () => {};
+  const topics = [adminTopic(gymRef)];
   await firestore.runTransaction(async (t) => {
     completion = await prepareTopicUnsubscriptionCompletion(t, {
       userRef,
