@@ -77,6 +77,7 @@ export interface Appointment {
   user: DocumentReference;
   gym: DocumentReference;
   createdAt: Date;
+  lastUpdatedAt: Date;
 }
 
 export interface ReservationRequest {

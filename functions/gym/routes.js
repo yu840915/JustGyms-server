@@ -16,6 +16,8 @@ const {
   generateDownloadUrlForGymImage,
 } = require('./images');
 const { gymsRef } = require('./firestoreRefs');
+const { createAppointment, cancelAppointment } = require('./booking');
+const { authenticate } = require('../authenticate');
 
 const app = express.Router();
 
@@ -137,6 +139,39 @@ app.delete(
   asyncRequestHandler(async (req, res) => {
     const { gymId, user } = req.params;
     await removeAdmin({ userRef: user, gymRef: gymsRef.doc(gymId) });
+    res.sendStatus(204);
+  })
+);
+
+app.post(
+  '/:gymId/appointments',
+  validator.params(validationRules.gymId),
+  validator.body(validationRules.createAppointment),
+  authenticate,
+  asyncRequestHandler(async (req, res) => {
+    const { gymId } = req.params;
+    const { startAt, endAt } = req.body;
+    await createAppointment({
+      userRef: req.userRef,
+      startAt,
+      endAt,
+      gymRef: gymsRef.doc(gymId),
+    });
+    res.sendStatus(201);
+  })
+);
+
+app.delete(
+  '/:gymId/appointments/:appointmentId',
+  validator.params(validationRules.cancelAppointment),
+  authenticate,
+  asyncRequestHandler(async (req, res) => {
+    const { gymId, appointmentId } = req.params;
+    await cancelAppointment({
+      userRef: req.userRef,
+      appointmentId,
+      gymRef: gymsRef.doc(gymId),
+    });
     res.sendStatus(204);
   })
 );

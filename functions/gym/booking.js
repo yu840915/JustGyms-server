@@ -16,7 +16,7 @@ const { sendFcmToTopic } = require('../sendFcm');
  * @param {Date} params.startAt
  * @param {Date} params.endAt
  */
-const book = async ({ userRef, gymRef, startAt, endAt }) => {
+const createAppointment = async ({ userRef, gymRef, startAt, endAt }) => {
   let onComplete = async () => {};
   await firestore.runTransaction(async (t) => {
     const gymSnap = await t.get(gymRef);
@@ -49,6 +49,7 @@ const book = async ({ userRef, gymRef, startAt, endAt }) => {
       type: 'reservation',
       gym: gymRef,
       createdAt: firebaseAdmin.firestore.FieldValue.serverTimestamp(),
+      lastUpdatedAt: firebaseAdmin.firestore.FieldValue.serverTimestamp(),
     };
     t.create(gymRef.collection(appointments).doc(), appointment);
     onComplete = async () => {
@@ -65,7 +66,7 @@ const book = async ({ userRef, gymRef, startAt, endAt }) => {
         topic: adminTopic(gymRef),
         content: {
           title: `${dateFormat.format(startAt)})有新的預約`,
-          body: `${timeFormat.format(startAt)}
+          body: `時段為Ｆ${timeFormat.format(startAt)}
           至${timeFormat.format(endAt)}`,
         },
       });
@@ -159,4 +160,61 @@ const checkGymSchedule = async (t, { gymSnap, startAt, endAt }) => {
   return true;
 };
 
-module.exports = { book };
+/**
+ * @param {Object} params
+ * @param {import('../firestoreTypes').DocumentReference} params.userRef
+ * @param {import('../firestoreTypes').DocumentReference} params.gymRef
+ * @param {String} params.appointmentId
+ */
+const cancelAppointment = async ({ userRef, gymRef, appointmentId }) => {
+  let onComplete = async () => {};
+  await firestore.runTransaction(async (t) => {
+    const snap = await t.get(
+      gymRef.collection(appointments).doc(appointmentId)
+    );
+    if (!snap.exists) {
+      throw createClientError(404, '找不到預約');
+    }
+    /**
+     * @type {import('./gym').Appointment}
+     */
+    const { user, startAt, status } = snap.data();
+    if (user.id !== userRef.id) {
+      throw createClientError(403, '只能取消自己的預約');
+    }
+    //TODO: Customize cancel rules
+    if (status !== 'scheduled' || Date.now() >= startAt.getTime()) {
+      throw createClientError(400, '預約開始後無法取消');
+    }
+    /**
+     * @type {import('./gym').Appointment}
+     */
+    const update = {
+      status: 'cancelled',
+      lastUpdatedAt: firebaseAdmin.firestore.FieldValue.serverTimestamp(),
+    };
+    t.update(snap.ref, update);
+    onComplete = async () => {
+      const dateFormat = new Intl.DateTimeFormat('zh-hant', {
+        weekday: 'narrow',
+        month: 'short',
+        day: 'numeric',
+      });
+      const timeFormat = new Intl.DateTimeFormat('zh-hant', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+      await sendFcmToTopic({
+        topic: adminTopic(gymRef),
+        content: {
+          title: `有人取消${dateFormat.format(startAt)})的預約`,
+          body: `時段為${timeFormat.format(startAt)}
+          至${timeFormat.format(endAt)}`,
+        },
+      });
+    };
+  });
+  await onComplete().catch(console.error);
+};
+
+module.exports = { createAppointment, cancelAppointment };
