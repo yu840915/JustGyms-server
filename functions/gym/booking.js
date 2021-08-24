@@ -18,8 +18,14 @@ const { sendFcmToTopic } = require('../sendFcm');
  */
 const createAppointment = async ({ userRef, gymRef, startAt, endAt }) => {
   let onComplete = async () => {};
+  if (Date.now() > startAt.getTime() || startAt.getTime() > endAt.getTime()) {
+    throw createClientError(400, '請檢查時間是否正確');
+  }
   await firestore.runTransaction(async (t) => {
     const gymSnap = await t.get(gymRef);
+    if (!gymSnap.exists) {
+      throw createClientError(404, '沒有這個場館');
+    }
     /**
      * @type {import('./gym').Gym}
      */
