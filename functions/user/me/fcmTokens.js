@@ -61,8 +61,8 @@ const addTopicsToUserData = (t, { userRef, topics }) => {
    * @type  {import('../user').User}
    */
   const update = {
-    fcmTopics: firebaseAdmin.firestore.FieldValue.arrayUnion(topics),
-  };
+    fcmTopics: firebaseAdmin.firestore.FieldValue.arrayUnion(...topics),
+  };  
   t.update(userRef, update);
 };
 
@@ -128,7 +128,7 @@ const removeTopicsFromUserData = (t, { userRef, topics }) => {
    * @type  {import('../user').User}
    */
   const update = {
-    fcmTopics: firebaseAdmin.firestore.FieldValue.arrayRemove(topics),
+    fcmTopics: firebaseAdmin.firestore.FieldValue.arrayRemove(...topics),
   };
   t.update(userRef, update);
 };

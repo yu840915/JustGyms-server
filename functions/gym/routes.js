@@ -124,8 +124,8 @@ app.post(
 
 app.put(
   '/:gymId/admins',
-  validator.params(validationRules.addAdmin),
-  validator.body(validationRules.editAdmin),
+  validator.params(validationRules.gymId),
+  validator.body(validationRules.addAdmin),
   asyncRequestHandler(async (req, res) => {
     const { gymId } = req.params;
     const { user } = req.body;
