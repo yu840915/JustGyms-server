@@ -26,7 +26,7 @@ const addFcmToken = async ({ userRef, token }) => {
     completion = async () => {
       await subscribeTokensToTopics({
         fcmTokens,
-        topics: fcmTopics + DEFUALT_TOPICS,
+        topics: fcmTopics.concat(DEFUALT_TOPICS),
       });
     };
   });

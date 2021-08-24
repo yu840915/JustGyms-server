@@ -11,6 +11,7 @@ const {
 const { addAdmin, removeAdmin } = require('./gymAdmin');
 const { getEquipmentTemplateList } = require('./equipmentTemplateList');
 const { asyncRequestHandler } = require('../firebaseFunctions');
+const { usersRef } = require('../user/firestoreRefs');
 const {
   generateUploadUrlForGymImage,
   generateDownloadUrlForGymImage,
@@ -128,7 +129,7 @@ app.put(
   asyncRequestHandler(async (req, res) => {
     const { gymId } = req.params;
     const { user } = req.body;
-    await addAdmin({ userRef: user, gymRef: gymsRef.doc(gymId) });
+    await addAdmin({ userRef: usersRef.doc(user), gymRef: gymsRef.doc(gymId) });
     res.sendStatus(204);
   })
 );
@@ -138,7 +139,10 @@ app.delete(
   validator.params(validationRules.removeAdmin),
   asyncRequestHandler(async (req, res) => {
     const { gymId, user } = req.params;
-    await removeAdmin({ userRef: user, gymRef: gymsRef.doc(gymId) });
+    await removeAdmin({
+      userRef: usersRef.doc(user),
+      gymRef: gymsRef.doc(gymId),
+    });
     res.sendStatus(204);
   })
 );
