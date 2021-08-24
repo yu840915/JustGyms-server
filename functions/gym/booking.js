@@ -18,7 +18,8 @@ const { sendFcmToTopic } = require('../sendFcm');
  */
 const createAppointment = async ({ userRef, gymRef, startAt, endAt }) => {
   let onComplete = async () => {};
-  if (Date.now() > startAt.getTime() || startAt.getTime() > endAt.getTime()) {
+  //TODO: Customize last booking time
+  if (Date.now() >= startAt.getTime() || startAt.getTime() >= endAt.getTime()) {
     throw createClientError(400, '請檢查時間是否正確');
   }
   await firestore.runTransaction(async (t) => {
