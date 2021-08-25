@@ -22,7 +22,7 @@ const createAppointment = async ({ userRef, gymRef, startAt, endAt }) => {
   if (Date.now() >= startAt.getTime() || startAt.getTime() >= endAt.getTime()) {
     throw createClientError(400, '請檢查時間是否正確');
   }
-  await firestore.runTransaction(async (t) => {
+  const appointmentId = await firestore.runTransaction(async (t) => {
     const gymSnap = await t.get(gymRef);
     if (!gymSnap.exists) {
       throw createClientError(404, '沒有這個場館');
@@ -43,7 +43,7 @@ const createAppointment = async ({ userRef, gymRef, startAt, endAt }) => {
     if ((await checkUserSchedule(t, { userRef, startAt, endAt })) === false) {
       throw createClientError(400, '你已經有預約場館');
     }
-    if ((await checkGymSchedule(t, { gymRef, startAt, endAt })) === false) {
+    if ((await checkGymSchedule(t, { gymSnap, startAt, endAt })) === false) {
       throw createClientError(400, '此時段場館已額滿');
     }
 
@@ -58,7 +58,8 @@ const createAppointment = async ({ userRef, gymRef, startAt, endAt }) => {
       createdAt: firebaseAdmin.firestore.FieldValue.serverTimestamp(),
       lastUpdatedAt: firebaseAdmin.firestore.FieldValue.serverTimestamp(),
     };
-    t.create(gymRef.collection(appointments).doc(), appointment);
+    const appointmentRef = gymRef.collection(appointments).doc();
+    t.create(appointmentRef, appointment);
     onComplete = async () => {
       const dateFormat = new Intl.DateTimeFormat('zh-hant', {
         weekday: 'narrow',
@@ -78,8 +79,10 @@ const createAppointment = async ({ userRef, gymRef, startAt, endAt }) => {
         },
       });
     };
+    return appointmentRef.id;
   });
   await onComplete().catch(console.error);
+  return appointmentId;
 };
 
 /**
@@ -104,6 +107,7 @@ const checkUserSchedule = async (t, { userRef, startAt, endAt }) => {
       .where('endAt', '>=', startAt)
       .where('endAt', '<=', endAt)
   );
+  //TODO: Inclusive overlaying schedules
   return startWithinSnap.size + endWithinSnap.size === 0;
 };
 
@@ -131,6 +135,7 @@ const checkGymSchedule = async (t, { gymSnap, startAt, endAt }) => {
       .where('endAt', '>=', startAt)
       .where('endAt', '<=', endAt)
   );
+  //TODO: Inclusive overlaying schedules
   if (startWithinSnap.size + endWithinSnap.size + 1 < capacity) {
     return true;
   }

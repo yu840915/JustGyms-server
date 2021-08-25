@@ -155,13 +155,13 @@ app.post(
   asyncRequestHandler(async (req, res) => {
     const { gymId } = req.params;
     const { startAt, endAt } = req.body;
-    await createAppointment({
+    const appointmentId = await createAppointment({
       userRef: req.userRef,
       startAt,
       endAt,
       gymRef: gymsRef.doc(gymId),
     });
-    res.sendStatus(201);
+    res.status(201).send({ id: appointmentId });
   })
 );
 
