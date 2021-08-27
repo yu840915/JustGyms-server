@@ -23,8 +23,8 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "endAt",
-          "order": "ASCENDING"
+          "fieldPath": "startAt",
+          "order": "DESCENDING"
         }
       ]
     }

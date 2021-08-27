@@ -80,6 +80,17 @@ export interface Appointment {
   lastUpdatedAt: Date;
 }
 
+export interface AppointmentSnap {
+  startAt: FirebaseFirestore.Timestamp;
+  endAt: FirebaseFirestore.Timestamp;
+  status: 'scheduled' | 'cancelled' | 'fulfilled' | 'missed';
+  type: 'reservation';
+  user: DocumentReference;
+  gym: DocumentReference;
+  createdAt: FirebaseFirestore.Timestamp;
+  lastUpdatedAt: FirebaseFirestore.Timestamp;
+}
+
 export interface ReservationRequest {
   startTime: Date;
   endTime: Date;

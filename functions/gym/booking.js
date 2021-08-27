@@ -4,7 +4,11 @@ const {
   firestore,
   firebaseAdmin,
 } = require('./firestoreRefs');
-const { checkIsBusinessHour } = require('./businessHours');
+const {
+  checkIsBusinessHour,
+  parseBusinessHours,
+  convertHhmm,
+} = require('./businessHours');
 const { createClientError } = require('../clientError');
 const { adminTopic } = require('./fcmTopics');
 const { sendFcmToTopic } = require('../sendFcm');
@@ -93,22 +97,20 @@ const createAppointment = async ({ userRef, gymRef, startAt, endAt }) => {
  * @param {Date} params.endAt
  */
 const checkUserSchedule = async (t, { userRef, startAt, endAt }) => {
-  const startWithinSnap = await t.get(
+  const neighborSnap = await t.get(
     firestore
       .collectionGroup(appointments)
       .where('user', '==', userRef)
-      .where('startAt', '>=', startAt)
       .where('startAt', '<=', endAt)
+      .orderBy('startAt', 'desc')
+      .limit(1)
   );
-  const endWithinSnap = await t.get(
-    firestore
-      .collectionGroup(appointments)
-      .where('user', '==', userRef)
-      .where('endAt', '>=', startAt)
-      .where('endAt', '<=', endAt)
-  );
-  //TODO: Inclusive overlaying schedules
-  return startWithinSnap.size + endWithinSnap.size === 0;
+  if (neighborSnap.empty) {
+    return true;
+  }
+  /** @type {import('./gym').AppointmentSnap} */
+  const { endAt: neighborEndAt } = neighborSnap.docs[0].data();
+  return startAt.getTime() > neighborEndAt.toMillis();
 };
 
 /**
@@ -119,45 +121,48 @@ const checkUserSchedule = async (t, { userRef, startAt, endAt }) => {
  * @param {Date} params.endAt
  */
 const checkGymSchedule = async (t, { gymSnap, startAt, endAt }) => {
-  /**
-   * @type {import('./gym').Gym}
-   */
+  /** @type {import('./gym').Gym} */
   const { capacity = 1000 } = gymSnap.data();
-  const startWithinSnap = await t.get(
+  /** @type {import('./gym').Gym} */
+  let { businessHours } = gymSnap.data();
+  businessHours = parseBusinessHours(businessHours);
+  const hours = businessHours[startAt.getDay() - 1];
+  const gymStart = new Date(startAt.toDateString());
+  const startTime = convertHhmm(hours.start);
+  gymStart.setHours(startTime.hour);
+  gymStart.setMinutes(startTime.min);
+  const gymEnd = new Date(startAt.toDateString());
+  const endTime = convertHhmm(hours.start);
+  gymEnd.setHours(endTime.hour);
+  gymEnd.setMinutes(endTime.min);
+
+  const appointmentsSnaps = await t.get(
     gymSnap.ref
       .collection(appointments)
-      .where('startAt', '>=', startAt)
-      .where('startAt', '<=', endAt)
+      .where('startAt', '>=', gymStart)
+      .where('startAt', '<=', endTime)
   );
-  const endWithinSnap = await t.get(
-    gymSnap.ref
-      .collection(appointments)
-      .where('endAt', '>=', startAt)
-      .where('endAt', '<=', endAt)
-  );
-  //TODO: Inclusive overlaying schedules
-  if (startWithinSnap.size + endWithinSnap.size + 1 < capacity) {
+  if (appointmentsSnaps.size + 1 < capacity) {
     return true;
   }
-  const snaps = startWithinSnap.docs.concat(endWithinSnap.docs);
+
   /** @type {[{date: Date, diff: 1 | -1}]} */
   const visitorEvents = [];
-  const processed = {};
-  for (const snap of snaps) {
-    if (processed[snap.ref.id]) {
+  for (const snap of appointmentsSnaps) {
+    /** @type {import('./gym').AppointmentSnap} */
+    const { startAt: startAtTs, endAt: endAtTs } = snap.data();
+    if (
+      startAtTs.toMillis() > endAt.getTime() ||
+      endAtTs.toMillis() < startAt.getTime()
+    ) {
       continue;
     }
-    processed[snap.ref.id] = true;
-    /**
-     * @type {import('./gym').Appointment}
-     */
-    const { startAt, endAt } = snap.data();
     visitorEvents.push({
-      date: startAt,
+      date: startAtTs.toDate(),
       diff: 1,
     });
     visitorEvents.push({
-      date: endAt,
+      date: endAtTs.toDate(),
       diff: -1,
     });
   }

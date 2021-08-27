@@ -75,4 +75,4 @@ const parseBusinessHours = (businessHours) => {
   return retVals;
 };
 
-module.exports = { parseBusinessHours, checkIsBusinessHour };
+module.exports = { parseBusinessHours, checkIsBusinessHour, convertHhmm };
