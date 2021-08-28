@@ -91,8 +91,8 @@ const removeAdmin = Joi.object({
 });
 
 const createAppointment = Joi.object({
-  startAt: Joi.date().required(),
-  endAt: Joi.date().required(),
+  startAt: Joi.date().iso().required(),
+  endAt: Joi.date().iso().required(),
 });
 
 const cancelAppointment = Joi.object({

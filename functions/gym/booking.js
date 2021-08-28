@@ -40,7 +40,7 @@ const createAppointment = async ({ userRef, gymRef, startAt, endAt }) => {
     }
     const isBusinessHour =
       checkIsBusinessHour({ date: startAt, businessHours }) &&
-      checkIsBusinessHour({ date: startAt, businessHours });
+      checkIsBusinessHour({ date: endAt, businessHours });
     if (!isBusinessHour) {
       throw createClientError(400, '請選擇場館開放時間');
     }
@@ -129,11 +129,11 @@ const checkGymSchedule = async (t, { gymSnap, startAt, endAt }) => {
   const hours = businessHours[startAt.getDay() - 1];
   const gymStart = new Date(startAt.toDateString());
   const startTime = convertHhmm(hours.start);
-  gymStart.setHours(startTime.hour);
+  gymStart.setHours(startTime.hour - 8);
   gymStart.setMinutes(startTime.min);
   const gymEnd = new Date(startAt.toDateString());
   const endTime = convertHhmm(hours.start);
-  gymEnd.setHours(endTime.hour);
+  gymEnd.setHours(endTime.hour - 8);
   gymEnd.setMinutes(endTime.min);
 
   const appointmentsSnaps = await t.get(

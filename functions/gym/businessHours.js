@@ -10,12 +10,12 @@ const checkIsBusinessHour = ({ date, businessHours }) => {
   const targetDayHours = businessHours[date.getDay()];
 
   const start = convertHhmm(targetDayHours.start);
-  const startDate = new Date(date.toDateString());
-  startDate.setHours(start.hour);
+  const startDate = new Date(date.toISOString());
+  startDate.setHours(start.hour - 8);
   startDate.setMinutes(start.min);
   const end = convertHhmm(targetDayHours.end);
-  const endDate = new Date(date.toDateString());
-  endDate.setHours(end.hour);
+  const endDate = new Date(date.toISOString());
+  endDate.setHours(end.hour - 8);
   endDate.setMinutes(end.min);
   return (
     startDate.getTime() <= date.getTime() && endDate.getTime() >= date.getTime()
