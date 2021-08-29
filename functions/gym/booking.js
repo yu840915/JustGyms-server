@@ -101,6 +101,7 @@ const checkUserSchedule = async (t, { userRef, startAt, endAt }) => {
     firestore
       .collectionGroup(appointments)
       .where('user', '==', userRef)
+      .where('status', '==', 'scheduled')
       .where('startAt', '<=', endAt)
       .orderBy('startAt', 'desc')
       .limit(1)
@@ -140,6 +141,7 @@ const checkGymSchedule = async (t, { gymSnap, startAt, endAt }) => {
   const appointmentsSnaps = await t.get(
     gymSnap.ref
       .collection(appointments)
+      .where('status', '==', 'scheduled')
       .where('startAt', '>=', gymStart)
       .where('startAt', '<=', gymEnd)
   );
@@ -173,7 +175,7 @@ const checkGymSchedule = async (t, { gymSnap, startAt, endAt }) => {
     }
     //Overlapping at endpoints is allowed, deduction first
     return a.diff - b.diff;
-  });  
+  });
   let concurrentVisitors = 0;
   for (const event of visitorEvents) {
     concurrentVisitors += event.diff;
@@ -200,14 +202,14 @@ const cancelAppointment = async ({ userRef, gymRef, appointmentId }) => {
       throw createClientError(404, '找不到預約');
     }
     /**
-     * @type {import('./gym').Appointment}
+     * @type {import('./gym').AppointmentSnap}
      */
-    const { user, startAt, status } = snap.data();
+    const { user, startAt, endAt, status } = snap.data();
     if (user.id !== userRef.id) {
       throw createClientError(403, '只能取消自己的預約');
     }
     //TODO: Customize cancel rules
-    if (status !== 'scheduled' || Date.now() >= startAt.getTime()) {
+    if (status !== 'scheduled' || Date.now() >= startAt.toMillis()) {
       throw createClientError(400, '預約開始後無法取消');
     }
     /**
@@ -231,9 +233,9 @@ const cancelAppointment = async ({ userRef, gymRef, appointmentId }) => {
       await sendFcmToTopic({
         topic: adminTopic(gymRef),
         content: {
-          title: `有人取消${dateFormat.format(startAt)})的預約`,
-          body: `時段為${timeFormat.format(startAt)}
-          至${timeFormat.format(endAt)}`,
+          title: `有人取消${dateFormat.format(startAt.toDate())})的預約`,
+          body: `時段為${timeFormat.format(startAt.toDate())}
+          至${timeFormat.format(endAt.toDate())}`,
         },
       });
     };
