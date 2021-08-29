@@ -110,7 +110,8 @@ const checkUserSchedule = async (t, { userRef, startAt, endAt }) => {
   }
   /** @type {import('./gym').AppointmentSnap} */
   const { endAt: neighborEndAt } = neighborSnap.docs[0].data();
-  return startAt.getTime() > neighborEndAt.toMillis();
+  //Overlapping at endpoints is allowed
+  return startAt.getTime() >= neighborEndAt.toMillis();
 };
 
 /**
@@ -132,7 +133,7 @@ const checkGymSchedule = async (t, { gymSnap, startAt, endAt }) => {
   gymStart.setHours(startTime.hour - 8);
   gymStart.setMinutes(startTime.min);
   const gymEnd = new Date(startAt.toDateString());
-  const endTime = convertHhmm(hours.start);
+  const endTime = convertHhmm(hours.end);
   gymEnd.setHours(endTime.hour - 8);
   gymEnd.setMinutes(endTime.min);
 
@@ -140,7 +141,7 @@ const checkGymSchedule = async (t, { gymSnap, startAt, endAt }) => {
     gymSnap.ref
       .collection(appointments)
       .where('startAt', '>=', gymStart)
-      .where('startAt', '<=', endTime)
+      .where('startAt', '<=', gymEnd)
   );
   if (appointmentsSnaps.size + 1 < capacity) {
     return true;
@@ -148,12 +149,12 @@ const checkGymSchedule = async (t, { gymSnap, startAt, endAt }) => {
 
   /** @type {[{date: Date, diff: 1 | -1}]} */
   const visitorEvents = [];
-  for (const snap of appointmentsSnaps) {
+  for (const snap of appointmentsSnaps.docs) {
     /** @type {import('./gym').AppointmentSnap} */
     const { startAt: startAtTs, endAt: endAtTs } = snap.data();
     if (
-      startAtTs.toMillis() > endAt.getTime() ||
-      endAtTs.toMillis() < startAt.getTime()
+      startAtTs.toMillis() >= endAt.getTime() ||
+      endAtTs.toMillis() <= startAt.getTime()
     ) {
       continue;
     }
@@ -166,7 +167,13 @@ const checkGymSchedule = async (t, { gymSnap, startAt, endAt }) => {
       diff: -1,
     });
   }
-  visitorEvents.sort((a, b) => a.date.getTime() - b.date.getTime());
+  visitorEvents.sort((a, b) => {
+    if (a.date.getTime() !== b.date.getTime()) {
+      return a.date.getTime() - b.date.getTime();
+    }
+    //Overlapping at endpoints is allowed, deduction first
+    return a.diff - b.diff;
+  });  
   let concurrentVisitors = 0;
   for (const event of visitorEvents) {
     concurrentVisitors += event.diff;
