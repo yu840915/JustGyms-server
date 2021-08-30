@@ -18,6 +18,13 @@ export interface Gym extends GeoLocation {
   equipmentTypes: [Number];
   townId: Number;
   countyId: Number;
+  admins: [DocumentReference];
+}
+
+export interface ChangeLog {
+  date: Date;
+  type: 'adminAdded' | 'adminRemoved';
+  user: DocumentReference;
 }
 
 export interface BusinessHours {
@@ -60,4 +67,31 @@ export interface Fare {
 export interface Price {
   amount: Number;
   currency: String;
+}
+
+export interface Appointment {
+  startAt: Date;
+  endAt: Date;
+  status: 'scheduled' | 'cancelled' | 'fulfilled' | 'missed';
+  type: 'reservation';
+  user: DocumentReference;
+  gym: DocumentReference;
+  createdAt: Date;
+  lastUpdatedAt: Date;
+}
+
+export interface AppointmentSnap {
+  startAt: FirebaseFirestore.Timestamp;
+  endAt: FirebaseFirestore.Timestamp;
+  status: 'scheduled' | 'cancelled' | 'fulfilled' | 'missed';
+  type: 'reservation';
+  user: DocumentReference;
+  gym: DocumentReference;
+  createdAt: FirebaseFirestore.Timestamp;
+  lastUpdatedAt: FirebaseFirestore.Timestamp;
+}
+
+export interface ReservationRequest {
+  startTime: Date;
+  endTime: Date;
 }

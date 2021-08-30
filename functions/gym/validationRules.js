@@ -83,6 +83,23 @@ const imagesUrls = Joi.object({
   images: Joi.array().items(Joi.string().uri()).default([]),
 });
 
+const addAdmin = Joi.object({ user: Joi.string().required() });
+
+const removeAdmin = Joi.object({
+  gymId: Joi.string().alphanum().required(),
+  user: Joi.string().required(),
+});
+
+const createAppointment = Joi.object({
+  startAt: Joi.date().iso().required(),
+  endAt: Joi.date().iso().required(),
+});
+
+const cancelAppointment = Joi.object({
+  gymId: Joi.string().alphanum().required(),
+  appointmentId: Joi.string().alphanum().required(),
+});
+
 module.exports = {
   createGym,
   gymList,
@@ -90,4 +107,8 @@ module.exports = {
   imagesUrls,
   uploadUrl,
   gymId,
+  addAdmin,
+  removeAdmin,
+  createAppointment,
+  cancelAppointment,
 };

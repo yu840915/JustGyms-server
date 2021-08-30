@@ -9,6 +9,7 @@ const {
 const { findTown } = require('../geoLocation');
 const { geocode } = require('../geocode');
 const { createClientError } = require('../clientError');
+const { parseBusinessHours } = require('./businessHours');
 
 /**
  * @param {import('./gym').Gym} gymInfo
@@ -65,49 +66,6 @@ const createGym = async (gymInfo) => {
     }
     throw error;
   }
-};
-
-/**
- * @param {[import('./gym').BusinessHours]} businessHours
- */
-const parseBusinessHours = (businessHours) => {
-  if (!businessHours || businessHours.length === 0) {
-    return null;
-  }
-  /**
-   * @type {import('./gym').BusinessHours}
-   */
-  let base;
-  const specialCases = {};
-
-  for (const descriptor of businessHours) {
-    if (!descriptor.dayOfWeek) {
-      base = descriptor;
-    } else {
-      specialCases[descriptor.dayOfWeek.toLowerCase()] = descriptor;
-    }
-  }
-
-  if (!base && Object.keys(specialCases).length !== 7) {
-    throw createClientError(
-      400,
-      'Please specify base case or business hours for every weekday'
-    );
-  }
-
-  const weekdays = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-  /**
-   * @type {[import('./gym').BusinessHours]}
-   */
-  const retVals = weekdays.map((e) => {
-    const val = specialCases[e] || base;
-    /**
-     * @type {import('./gym').BusinessHours}
-     */
-    const ret = { ...val, dayOfWeek: e };
-    return ret;
-  });
-  return retVals;
 };
 
 /**

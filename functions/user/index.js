@@ -1,5 +1,5 @@
 module.exports = {
   ...require('./createUser'),
-  ...require('./sendFcm'),
+  ...require('../sendFcm'),
   firestoreRefs: require('./firestoreRefs'),
 };
