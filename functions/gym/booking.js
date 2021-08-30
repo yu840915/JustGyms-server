@@ -78,7 +78,7 @@ const createAppointment = async ({ userRef, gymRef, startAt, endAt }) => {
         topic: adminTopic(gymRef),
         content: {
           title: `${dateFormat.format(startAt)})有新的預約`,
-          body: `時段為Ｆ${timeFormat.format(startAt)}
+          body: `時段為${timeFormat.format(startAt)}
           至${timeFormat.format(endAt)}`,
         },
       });
