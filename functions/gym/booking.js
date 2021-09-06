@@ -1,9 +1,4 @@
-const {
-  gymsRef,
-  appointments,
-  firestore,
-  firebaseAdmin,
-} = require('./firestoreRefs');
+const { appointments, firestore, firebaseAdmin } = require('./firestoreRefs');
 const {
   checkIsBusinessHour,
   parseBusinessHours,
@@ -34,7 +29,7 @@ const createAppointment = async ({ userRef, gymRef, startAt, endAt }) => {
     /**
      * @type {import('./gym').Gym}
      */
-    const { businessHours, admins = [] } = gymSnap.data();
+    const { businessHours, admins = [], name: gymName } = gymSnap.data();
     if (admins.length === 0) {
       throw createClientError(400, '此場館還沒有預約功能');
     }
@@ -61,6 +56,7 @@ const createAppointment = async ({ userRef, gymRef, startAt, endAt }) => {
       gym: gymRef,
       createdAt: firebaseAdmin.firestore.FieldValue.serverTimestamp(),
       lastUpdatedAt: firebaseAdmin.firestore.FieldValue.serverTimestamp(),
+      gymName,
     };
     const appointmentRef = gymRef.collection(appointments).doc();
     t.create(appointmentRef, appointment);
