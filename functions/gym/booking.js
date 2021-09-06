@@ -11,7 +11,7 @@ const {
 } = require('./businessHours');
 const { createClientError } = require('../clientError');
 const { adminTopic } = require('./fcmTopics');
-const { sendFcmToTopic } = require('../sendFcm');
+const { sendFcmToTopic, sendFcm } = require('../sendFcm');
 
 /**
  * @param {Object} params
@@ -205,12 +205,22 @@ const cancelAppointment = async ({ userRef, gymRef, appointmentId }) => {
      * @type {import('./gym').AppointmentSnap}
      */
     const { user, startAt, endAt, status } = snap.data();
-    if (user.id !== userRef.id) {
-      throw createClientError(403, '只能取消自己的預約');
+    let isAdmin;
+    if (user.id === userRef.id) {
+      isAdmin = false;
+    } else if (admins.findIndex((admin) => admin.id === adminRef.id) !== -1) {
+      isAdmin = true;
+    } else {
+      throw createClientError(403, '你必須是本人或管理者才能取消此預約');
     }
     //TODO: Customize cancel rules
-    if (status !== 'scheduled' || Date.now() >= startAt.toMillis()) {
-      throw createClientError(400, '預約開始後無法取消');
+    if (status !== 'scheduled') {
+      throw createClientError(400, '只能取消排程中的預約');
+    }
+    if (!isAdmin && Date.now() >= startAt.toMillis()) {
+      throw createClientError(400, '預約到期後無法取消');
+    } else if (isAdmin && Date.now() >= endAt.toMillis()) {
+      throw createClientError(400, '預約結束後無法取消');
     }
     /**
      * @type {import('./gym').Appointment}
@@ -218,6 +228,7 @@ const cancelAppointment = async ({ userRef, gymRef, appointmentId }) => {
     const update = {
       status: 'cancelled',
       lastUpdatedAt: firebaseAdmin.firestore.FieldValue.serverTimestamp(),
+      cancelledBy: userRef,
     };
     t.update(snap.ref, update);
     onComplete = async () => {
@@ -230,14 +241,25 @@ const cancelAppointment = async ({ userRef, gymRef, appointmentId }) => {
         hour: '2-digit',
         minute: '2-digit',
       });
-      await sendFcmToTopic({
-        topic: adminTopic(gymRef),
-        content: {
-          title: `有人取消${dateFormat.format(startAt.toDate())})的預約`,
-          body: `時段為${timeFormat.format(startAt.toDate())}
-          至${timeFormat.format(endAt.toDate())}`,
-        },
-      });
+      if (!isAdmin) {
+        await sendFcmToTopic({
+          topic: adminTopic(gymRef),
+          content: {
+            title: `有人取消${dateFormat.format(startAt.toDate())})的預約`,
+            body: `時段為${timeFormat.format(startAt.toDate())}
+            至${timeFormat.format(endAt.toDate())}`,
+          },
+        });
+      } else {
+        await sendFcm({
+          userRef: user,
+          content: {
+            title: `你 ${dateFormat.format(
+              startAt.toDate()
+            )} 在 ${name} 的預約已被取消`,
+          },
+        });
+      }
     };
   });
   await onComplete().catch(console.error);
