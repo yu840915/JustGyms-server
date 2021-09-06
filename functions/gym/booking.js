@@ -205,6 +205,9 @@ const cancelAppointment = async ({ userRef, gymRef, appointmentId }) => {
      * @type {import('./gym').AppointmentSnap}
      */
     const { user, startAt, endAt, status } = snap.data();
+    const gymSnap = await t.get(gymRef);
+    /** @type {import('./gym').Gym} */
+    const { name, admins } = gymSnap.data();
     let isAdmin;
     if (user.id === userRef.id) {
       isAdmin = false;
