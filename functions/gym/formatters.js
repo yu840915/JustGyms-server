@@ -25,6 +25,7 @@ const formatGymSnap = (snap) => {
     hourlyRate,
     phones,
     facilities,
+    admins = [],
   } = snap.data();
   return {
     images,
@@ -40,6 +41,7 @@ const formatGymSnap = (snap) => {
     hourlyRate,
     phones,
     facilities,
+    supportsBooking: admins.length > 0,
   };
 };
 

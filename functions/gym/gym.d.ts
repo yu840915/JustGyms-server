@@ -76,8 +76,10 @@ export interface Appointment {
   type: 'reservation';
   user: DocumentReference;
   gym: DocumentReference;
+  gymName: String;
   createdAt: Date;
   lastUpdatedAt: Date;
+  hasReminded: Boolean;
 }
 
 export interface AppointmentSnap {
