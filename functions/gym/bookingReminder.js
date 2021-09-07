@@ -34,7 +34,7 @@ const remindForNearAppointments = async () => {
       for (const snap of snaps.docs) {
         cursor = snap;
         /** @type {import('./gym').Appointment} */
-        const { hasReminded, user, gymName, gym } = snap.data();
+        const { hasReminded, user, gymName = '場租', gym } = snap.data();
         if (hasReminded) {
           continue;
         }
