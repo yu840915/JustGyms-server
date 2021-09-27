@@ -1,6 +1,9 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function userRef() {
+      return /databases/$(database)/documents/users/$(request.auth.uid);
+    }
     match /users/{userId}/{document=**} {
       allow read: if 
       	request.auth != null &&
@@ -18,7 +21,7 @@ service cloud.firestore {
       allow read: if 
         request.auth != null && 
         (resource == null ||
-        request.auth.uid == resource.data.user ||
+        userRef() == resource.data.user ||
         request.auth.uid in getGymDoc().admins)
     }
   }
