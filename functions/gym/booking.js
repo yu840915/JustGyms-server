@@ -124,7 +124,7 @@ const checkGymSchedule = async (t, { gymSnap, startAt, endAt }) => {
   /** @type {import('./gym').Gym} */
   let { businessHours } = gymSnap.data();
   businessHours = parseBusinessHours(businessHours);
-  const hours = businessHours[startAt.getDay() - 1];
+  const hours = businessHours[startAt.getDay() ];
   const gymStart = new Date(startAt.toDateString());
   const startTime = convertHhmm(hours.start);
   gymStart.setHours(startTime.hour - 8);
