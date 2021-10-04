@@ -26,9 +26,7 @@ service cloud.firestore {
     }
     match /{path=**}/gymAppointments/{documentId} {
       allow read: if 
-        request.auth != null && 
-        (resource == null ||
-        userRef() == resource.data.user)    
+        request.auth != null
     }
   }
 }
