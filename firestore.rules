@@ -14,6 +14,12 @@ service cloud.firestore {
       	request.auth != null &&
         request.auth.uid == userId;
     }
+    match /gyms/{document=**} {
+      allow read: if 
+        request.auth != null && 
+        (resource == null ||
+        userRef() in resource.data.admins)    
+    }
     match /gyms/{gymId}/gymAppointments/{document=**} {
       function getGymDoc() {
         return get(/databases/$(database)/documents/gyms/$(gymId));
