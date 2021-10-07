@@ -26,6 +26,9 @@ const createAppointment = async ({ userRef, gymRef, startAt, endAt }) => {
     if (!gymSnap.exists) {
       throw createClientError(404, '沒有這個場館');
     }
+    const userSnap = await t.get(userRef);
+    /** @type {import('../user/user').User} */
+    const { name: userName } = userSnap.data;
     /**
      * @type {import('./gym').Gym}
      */
@@ -49,6 +52,7 @@ const createAppointment = async ({ userRef, gymRef, startAt, endAt }) => {
     /** @type {import('./gym').Appointment} */
     const appointment = {
       user: userRef,
+      userName: userName || null,
       startAt,
       endAt,
       status: 'scheduled',
@@ -124,7 +128,7 @@ const checkGymSchedule = async (t, { gymSnap, startAt, endAt }) => {
   /** @type {import('./gym').Gym} */
   let { businessHours } = gymSnap.data();
   businessHours = parseBusinessHours(businessHours);
-  const hours = businessHours[startAt.getDay() ];
+  const hours = businessHours[startAt.getDay()];
   const gymStart = new Date(startAt.toDateString());
   const startTime = convertHhmm(hours.start);
   gymStart.setHours(startTime.hour - 8);
