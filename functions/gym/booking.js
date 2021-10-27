@@ -28,7 +28,7 @@ const createAppointment = async ({ userRef, gymRef, startAt, endAt }) => {
     }
     const userSnap = await t.get(userRef);
     /** @type {import('../user/user').User} */
-    const { name: userName } = userSnap.data;
+    const { name: userName } = userSnap.data();
     /**
      * @type {import('./gym').Gym}
      */
