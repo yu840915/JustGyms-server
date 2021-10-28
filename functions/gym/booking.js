@@ -211,7 +211,7 @@ const cancelAppointment = async ({ userRef, gymRef, appointmentId }) => {
     let isAdmin;
     if (user.id === userRef.id) {
       isAdmin = false;
-    } else if (admins.findIndex((admin) => admin.id === adminRef.id) !== -1) {
+    } else if (admins.findIndex((admin) => admin.id === userRef.id) !== -1) {
       isAdmin = true;
     } else {
       throw createClientError(403, '你必須是本人或管理者才能取消此預約');
