@@ -26,6 +26,9 @@ const createAppointment = async ({ userRef, gymRef, startAt, endAt }) => {
     if (!gymSnap.exists) {
       throw createClientError(404, '沒有這個場館');
     }
+    const userSnap = await t.get(userRef);
+    /** @type {import('../user/user').User} */
+    const { name: userName } = userSnap.data();
     /**
      * @type {import('./gym').Gym}
      */
@@ -49,6 +52,7 @@ const createAppointment = async ({ userRef, gymRef, startAt, endAt }) => {
     /** @type {import('./gym').Appointment} */
     const appointment = {
       user: userRef,
+      userName: userName || null,
       startAt,
       endAt,
       status: 'scheduled',
@@ -124,7 +128,7 @@ const checkGymSchedule = async (t, { gymSnap, startAt, endAt }) => {
   /** @type {import('./gym').Gym} */
   let { businessHours } = gymSnap.data();
   businessHours = parseBusinessHours(businessHours);
-  const hours = businessHours[startAt.getDay() - 1];
+  const hours = businessHours[startAt.getDay()];
   const gymStart = new Date(startAt.toDateString());
   const startTime = convertHhmm(hours.start);
   gymStart.setHours(startTime.hour - 8);
@@ -207,7 +211,7 @@ const cancelAppointment = async ({ userRef, gymRef, appointmentId }) => {
     let isAdmin;
     if (user.id === userRef.id) {
       isAdmin = false;
-    } else if (admins.findIndex((admin) => admin.id === adminRef.id) !== -1) {
+    } else if (admins.findIndex((admin) => admin.id === userRef.id) !== -1) {
       isAdmin = true;
     } else {
       throw createClientError(403, '你必須是本人或管理者才能取消此預約');
