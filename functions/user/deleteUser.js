@@ -3,6 +3,7 @@ const { appointments, gymsRef } = require('../gym/firestoreRefs');
 const { createClientError } = require('../clientError');
 const { sendFcmToTopic } = require('../sendFcm');
 const { adminTopic } = require('../gym/fcmTopics');
+const { unsubscribeTokensFromTopics } = require('./me/fcmTokens');
 
 /**
  * @param {import('../firestoreTypes').DocumentReference} userRef
@@ -14,11 +15,13 @@ const deleteUser = async (userRef) => {
     if (userSnap.exists) {
       throw createClientError(404, '找不到使用者');
     }
+    /** @type {import('./user').User} */
+    const { fcmTokens = [] } = userSnap.data();
     const appointmentSnaps = await getAppointments(t, userRef);
     const gymSnaps = await getManagingGyms(t, userRef);
     completions.concat(cancelAppointments(t, appointmentSnaps, userRef));
-  });
-  //Remove admin
+    completions.concat(removeAdmin(t, appointmentSnaps, userRef, fcmTokens));
+  });  
   //Remove user
   //Remove firebase user
 };
@@ -81,6 +84,37 @@ const cancelAppointments = (t, snaps, userRef) => {
       });
     };
     completions.push(completion);
+  }
+  return completions;
+};
+
+/**
+ * @param {import('../firestoreTypes').Transaction} t
+ * @param {import('../firestoreTypes').QuerySnapshot} snaps
+ * @param {import('../firestoreTypes').DocumentReference} userRef
+ * @param {[String]} fcmTokens
+ */
+const removeAdmin = (t, snaps, userRef, fcmTokens) => {
+  const completions = [];
+  for (const snap of snaps.docs) {
+    const gymRef = snap.ref;
+    const topics = [adminTopic(gymRef)];
+    let completion = async () => {
+      await unsubscribeTokensFromTopics({ fcmTokens, topics });
+    };
+    completions.push(completion);
+    /** @type {import('./gym').Gym} */
+    const gymUpdate = {
+      admins: firebaseAdmin.firestore.FieldValue.arrayRemove(userRef),
+    };
+    /** @type {import('./gym').ChangeLog} */
+    const logUpdate = {
+      date: firebaseAdmin.firestore.FieldValue.serverTimestamp(),
+      type: 'adminRemoved',
+      user: userRef,
+    };
+    t.update(gymRef, gymUpdate);
+    t.create(gymRef.collection(changeLogs).doc(), logUpdate);
   }
   return completions;
 };

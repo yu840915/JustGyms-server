@@ -76,4 +76,7 @@ const removeAdmin = async ({ userRef, gymRef }) => {
   await completion();
 };
 
-module.exports = { addAdmin, removeAdmin };
+module.exports = {
+  addAdmin,
+  removeAdmin,
+};
