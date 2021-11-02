@@ -3,11 +3,22 @@ const { authenticate } = require('../../authenticate');
 const { asyncRequestHandler } = require('../../firebaseFunctions');
 const { addGyms, removeGyms } = require('./favorites');
 const { addFcmToken } = require('./fcmTokens');
+const { deleteUser } = require('../deleteUser');
 const validationRules = require('./validationRules');
 
 const validator = require('express-joi-validation').createValidator({});
 
 const app = express.Router();
+
+app.delete(
+  '/',
+  validator.body(validationRules.fcmToken),
+  authenticate,
+  asyncRequestHandler(async (req, res) => {
+    deleteUser(req.userRef).catch(console.error);
+    res.send(204);
+  })
+);
 
 app.post(
   '/fcm-tokens',

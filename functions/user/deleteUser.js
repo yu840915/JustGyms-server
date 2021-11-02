@@ -4,12 +4,14 @@ const { createClientError } = require('../clientError');
 const { sendFcmToTopic } = require('../sendFcm');
 const { adminTopic } = require('../gym/fcmTopics');
 const { unsubscribeTokensFromTopics } = require('./me/fcmTokens');
+const { firebaseAdmin } = require('../firebaseAdmin');
+const { auth } = require('firebase-admin');
 
 /**
  * @param {import('../firestoreTypes').DocumentReference} userRef
  */
 const deleteUser = async (userRef) => {
-  const completions = [];
+  const completions = [async () => {}];
   await firestore.runTransaction(async (t) => {
     const userSnap = await t.get(userRef);
     if (userSnap.exists) {
@@ -21,9 +23,14 @@ const deleteUser = async (userRef) => {
     const gymSnaps = await getManagingGyms(t, userRef);
     completions.concat(cancelAppointments(t, appointmentSnaps, userRef));
     completions.concat(removeAdmin(t, appointmentSnaps, userRef, fcmTokens));
-  });  
-  //Remove user
-  //Remove firebase user
+    t.delete(userRef);
+  });
+  await firebaseAdmin.auth().deleteUser(userRef.id);
+  await Promise.all(
+    completions.map(async (completion) => {
+      await completion().catch(console.error);
+    })
+  );
 };
 
 /**
