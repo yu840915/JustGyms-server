@@ -62,7 +62,7 @@ const addTopicsToUserData = (t, { userRef, topics }) => {
    */
   const update = {
     fcmTopics: firebaseAdmin.firestore.FieldValue.arrayUnion(...topics),
-  };  
+  };
   t.update(userRef, update);
 };
 
@@ -175,4 +175,5 @@ module.exports = {
   prepareTopicSubscriptionCompletion,
   removeTopicsFromUserData,
   prepareTopicUnsubscriptionCompletion,
+  unsubscribeTokensFromTopics,
 };
