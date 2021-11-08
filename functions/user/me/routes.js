@@ -15,7 +15,7 @@ app.delete(
   authenticate,
   asyncRequestHandler(async (req, res) => {
     deleteUser(req.userRef).catch(console.error);
-    res.send(204);
+    res.send(202);
   })
 );
 
