@@ -12,7 +12,6 @@ const app = express.Router();
 
 app.delete(
   '/',
-  validator.body(validationRules.fcmToken),
   authenticate,
   asyncRequestHandler(async (req, res) => {
     deleteUser(req.userRef).catch(console.error);

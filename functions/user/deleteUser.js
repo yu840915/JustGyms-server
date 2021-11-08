@@ -126,6 +126,18 @@ const removeAdmin = (t, snaps, userRef, fcmTokens) => {
   return completions;
 };
 
+const deleteAnonymousUser = async (anonymousId) => {
+  const user = await firebaseAdmin.auth().getUser(anonymousId);
+  if (!user) {
+    throw createClientError(404, 'User not found');
+  }
+  if (user.providerData.length !== 0) {
+    throw createClientError(400, 'This user is not anonymous');
+  }
+  await firebaseAdmin.auth().deleteUser(anonymousId);
+};
+
 module.exports = {
+  deleteAnonymousUser,
   deleteUser,
 };
