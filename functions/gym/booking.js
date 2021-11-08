@@ -73,13 +73,15 @@ const createAppointment = async ({ userRef, gymRef, startAt, endAt }) => {
       const timeFormat = new Intl.DateTimeFormat('zh-hant', {
         hour: '2-digit',
         minute: '2-digit',
+        timeZone: 'Asia/Taipei',        
       });
       await sendFcmToTopic({
         topic: adminTopic(gymRef),
         content: {
-          title: `${dateFormat.format(startAt)})有新的預約`,
-          body: `時段為${timeFormat.format(startAt)}
-          至${timeFormat.format(endAt)}`,
+          title: `${dateFormat.format(startAt)}有新的預約`,
+          body: `時段為${timeFormat.format(startAt)}至${timeFormat.format(
+            endAt
+          )}`,
         },
       });
     };
@@ -249,8 +251,9 @@ const cancelAppointment = async ({ userRef, gymRef, appointmentId }) => {
           topic: adminTopic(gymRef),
           content: {
             title: `有人取消${dateFormat.format(startAt.toDate())})的預約`,
-            body: `時段為${timeFormat.format(startAt.toDate())}
-            至${timeFormat.format(endAt.toDate())}`,
+            body: `時段為${timeFormat.format(
+              startAt.toDate()
+            )}至${timeFormat.format(endAt.toDate())}`,
           },
         });
       } else {
