@@ -250,7 +250,7 @@ const cancelAppointment = async ({ userRef, gymRef, appointmentId }) => {
         await sendFcmToTopic({
           topic: adminTopic(gymRef),
           content: {
-            title: `有人取消${dateFormat.format(startAt.toDate())})的預約`,
+            title: `有人取消${dateFormat.format(startAt.toDate())}的預約`,
             body: `時段為${timeFormat.format(
               startAt.toDate()
             )}至${timeFormat.format(endAt.toDate())}`,
