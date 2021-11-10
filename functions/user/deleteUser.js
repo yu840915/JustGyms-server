@@ -146,7 +146,7 @@ const deleteAnonymousUser = async (user) => {
   if (user.providerData.length !== 0) {
     throw createClientError(400, 'This user is not anonymous');
   }
-  await firebaseAdmin.auth().deleteUser(anonymousId);
+  await firebaseAdmin.auth().deleteUser(user.uid);
 };
 
 /**

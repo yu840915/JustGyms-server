@@ -1,7 +1,6 @@
 const express = require('express');
 const { asyncRequestHandler } = require('../firebaseFunctions');
 const { deleteAnonymousUserWithId } = require('./deleteUser');
-const { firebaseAdmin } = require('./firestoreRefs');
 const { authenticate } = require('../authenticate');
 
 const validationRules = require('./validationRules');
