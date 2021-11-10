@@ -1,5 +1,5 @@
 const { firebaseAdmin } = require('./firebaseAdmin');
-const { firestoreRefs } = require('./user');
+const { usersRef } = require('./user/firestoreRefs');
 const auth = firebaseAdmin.auth();
 
 const verifyIdToken = async (req, res, next) => {
@@ -24,14 +24,26 @@ const authenticate = async (req, res, next) => {
   await verifyIdToken(req, res, async () => {
     const user = await auth.getUser(req.jwt.uid);
     if (user.providerData.length > 0) {
-      req.userRef = firestoreRefs.usersRef.doc(user.uid);
+      req.userRef = usersRef.doc(user.uid);
       return next();
     }
     return res.sendStatus(403);
   });
 };
 
+const authenticateOrVerify = async (req, res, next) => {
+  await verifyIdToken(req, res, async () => {
+    const user = await auth.getUser(req.jwt.uid);
+    if (user.providerData.length > 0) {
+      req.userRef = usersRef.doc(user.uid);
+    }
+    req.user = user;
+    return next();
+  });
+};
+
 module.exports = {
   authenticate,
   verifyIdToken,
+  authenticateOrVerify,
 };
