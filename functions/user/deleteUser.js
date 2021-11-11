@@ -8,9 +8,22 @@ const { firebaseAdmin } = require('../firebaseAdmin');
 const { auth } = require('firebase-admin');
 
 /**
+ * @param {Object} params
+ * @param {import('../firestoreTypes').DocumentReference} params.userRef
+ * @param {auth.UserRecord} params.user
+ */
+const deleteUser = async ({ userRef, user }) => {
+  if (userRef) {
+    await deleteRealUser(userRef);
+  } else {
+    await deleteAnonymousUser(user);
+  }
+};
+
+/**
  * @param {import('../firestoreTypes').DocumentReference} userRef
  */
-const deleteUser = async (userRef) => {
+const deleteRealUser = async (userRef) => {
   const completions = [async () => {}];
   await firestore.runTransaction(async (t) => {
     const userSnap = await t.get(userRef);
@@ -126,6 +139,29 @@ const removeAdmin = (t, snaps, userRef, fcmTokens) => {
   return completions;
 };
 
+/**
+ * @param {auth.UserRecord} user
+ */
+const deleteAnonymousUser = async (user) => {
+  if (user.providerData.length !== 0) {
+    throw createClientError(400, 'This user is not anonymous');
+  }
+  await firebaseAdmin.auth().deleteUser(user.uid);
+};
+
+/**
+ * @param {String} userId
+ */
+const deleteAnonymousUserWithId = async (userId) => {
+  const user = await firebaseAdmin.auth().getUser(userId);
+  if (!user) {
+    throw createClientError(404, '使用者不存在');
+  }
+  await deleteAnonymousUser(user);
+};
+
 module.exports = {
+  deleteAnonymousUserWithId,
+  deleteAnonymousUser,
   deleteUser,
 };

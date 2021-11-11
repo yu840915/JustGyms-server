@@ -4,8 +4,7 @@ const validationRules = require('./validationRules');
 const { createGym, setImages } = require('./editGym');
 const {
   findNearbyGyms,
-  findNearbyGymsAndConvertToMapMarkers,
-  getGymsByIds,
+  findNearbyGymsAndConvertToMapMarkers,  
   getDetail,
 } = require('./gymList');
 const { addAdmin, removeAdmin } = require('./gymAdmin');
