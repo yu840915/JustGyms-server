@@ -1,6 +1,7 @@
 const { firebaseAdmin } = require('../firebaseAdmin');
 const bucket = firebaseAdmin.storage().bucket();
 const { min } = require('../dateConstants');
+const { request } = require('gaxios');
 
 //Image sizes
 /**
@@ -21,7 +22,18 @@ const generateUploadUrl = async ({
     contentType: mime,
     expires: expires || Date.now() + 15 * min,
   });
-  return url.length > 0 ? url[0] : null;
+  if (url.length === 0) {
+    return null;
+  }
+  const res = await request({
+    url: url[0],
+    method: 'POST',
+    headers: { 'Content-Type': mime, 'x-goog-resumable': 'start' },
+  });
+  if (res.status !== 201) {
+    return null;
+  }
+  return res.headers.location;
 };
 
 module.exports = { generateUploadUrl };
