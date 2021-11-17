@@ -12,10 +12,10 @@ const generateUploadUrlForGymImage = async ({ gymId, filename }) => {
     filename = firestore.doc().id;
   }
   const signedUrl = await generateUploadUrl({
-    collection: `gymImages/${gymId}`,
+    collection: `gyms/${gymId}/images`,
     filename,
   });
-  const path = `/gymImages/${gymId}/images/${filename}`;
+  const path = `/gyms/${gymId}/images/${filename}`;
   return {
     signedUrl,
     path,
