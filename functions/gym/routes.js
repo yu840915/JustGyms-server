@@ -4,7 +4,7 @@ const validationRules = require('./validationRules');
 const { createGym, setImages } = require('./editGym');
 const {
   findNearbyGyms,
-  findNearbyGymsAndConvertToMapMarkers,  
+  findNearbyGymsAndConvertToMapMarkers,
   getDetail,
 } = require('./gymList');
 const { addAdmin, removeAdmin } = require('./gymAdmin');
@@ -109,7 +109,8 @@ app.post(
   '/:gymId/images/signed-url',
   validator.params(validationRules.gymId),
   validator.body(validationRules.uploadUrl),
-  asyncRequestHandler(async (req, res) => {
+  authenticate,
+  asyncRequestHandler(async (req, res) => {    
     const { gymId } = req.params;
     const { imageId } = req.body;
     const result = await generateUploadUrlForGymImage({
