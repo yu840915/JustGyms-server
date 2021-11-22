@@ -1,7 +1,9 @@
 const { firebaseAdmin } = require('../firebaseAdmin');
-const bucket = firebaseAdmin.storage().bucket();
+const storage = firebaseAdmin.storage();
+const bucket = storage.bucket();
 const { min } = require('../dateConstants');
 const { request } = require('gaxios');
+const uuid = require('uuid').v4;
 
 //Image sizes
 /**
@@ -15,7 +17,7 @@ const generateUploadUrl = async ({
   expires,
 }) => {
   const ref = bucket.file(`${collection}/${filename}`);
-  console.log(`Will generate signed url for ${ref}`);
+  console.log(`Will generate signed url for ${ref.name}`);
   const url = await ref.getSignedUrl({
     action: 'resumable',
     version: 'v4',
@@ -33,7 +35,25 @@ const generateUploadUrl = async ({
   if (res.status !== 201) {
     return null;
   }
+
   return res.headers.location;
 };
 
-module.exports = { generateUploadUrl };
+/**
+ * @param {import('firebase-functions/lib/providers/storage').ObjectMetadata} object
+ */
+const updateVisibility = async (object) => {
+  const firebaseStorageDownloadTokens = uuid();
+  const ref = storage.bucket(object.bucket).file(object.name);
+  console.log(`Will update metadata for ${ref.name}`);
+  await ref.acl.add({ entity: 'allUsers', role: 'READER' });
+  await ref.setMetadata({
+    cacheControl: 'public,max-age=3600',
+    metadata: { firebaseStorageDownloadTokens },
+  });
+  console.log(
+    `Did update metadata for ${ref.name}, generated token ${firebaseStorageDownloadTokens}`
+  );
+};
+
+module.exports = { generateUploadUrl, updateVisibility };

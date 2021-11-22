@@ -93,7 +93,7 @@ app.put(
 
 app.get(
   '/:gymId/images/:imageId',
-  validator.params(validationRules.gymId),
+  validator.params(validationRules.getGymImage  ),
   asyncRequestHandler(async (req, res) => {
     const { gymId, imageId } = req.params;
     const url = await generateDownloadUrlForGymImage({

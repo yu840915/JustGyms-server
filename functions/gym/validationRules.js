@@ -73,6 +73,11 @@ const gymId = Joi.object({
   gymId: Joi.string().alphanum().required(),
 });
 
+const getGymImage = Joi.object({
+  gymId: Joi.string().alphanum().required(),
+  imageId: Joi.string().required(),
+});
+
 const gymMarkers = Joi.object({
   ...coordinatesPrimitives,
   d: Joi.number().positive().required(),
@@ -111,4 +116,5 @@ module.exports = {
   removeAdmin,
   createAppointment,
   cancelAppointment,
+  getGymImage,
 };
