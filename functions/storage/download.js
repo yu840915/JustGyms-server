@@ -10,7 +10,6 @@ const generateDownloadUrl = async ({ collection, filename, expires }) => {
     throw createClientError(404, '圖片不存在');
   }
   const [{ metadata = {}, mediaLink, generation }] = await ref.getMetadata();
-  console.log(metadata);
   const { firebaseStorageDownloadTokens } = metadata;
   if (firebaseStorageDownloadTokens) {
     let url = mediaLink;

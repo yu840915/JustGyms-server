@@ -35,7 +35,6 @@ const generateUploadUrl = async ({
   if (res.status !== 201) {
     return null;
   }
-
   return res.headers.location;
 };
 
@@ -52,7 +51,7 @@ const updateVisibility = async (object) => {
     metadata: { firebaseStorageDownloadTokens },
   });
   console.log(
-    `Did update metadata for ${ref.name}, generated token ${firebaseStorageDownloadTokens}`
+    `Did update metadata for ${ref.name}`
   );
 };
 
