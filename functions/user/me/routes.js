@@ -5,6 +5,7 @@ const { addGyms, removeGyms } = require('./favorites');
 const { addFcmToken } = require('./fcmTokens');
 const { deleteUser } = require('../deleteUser');
 const validationRules = require('./validationRules');
+const { generateUploadUrlForAvatar } = require('../avatar');
 
 const validator = require('express-joi-validation').createValidator({});
 
@@ -16,6 +17,20 @@ app.delete(
   asyncRequestHandler(async (req, res) => {
     deleteUser({ userRef: req.userRef, user: req.user }).catch(console.error);
     res.send(202);
+  })
+);
+
+app.post(
+  '/avatar/signed-url',
+  authenticate,
+  asyncRequestHandler(async (req, res) => {
+    const mime = req.headers['X-Content-Type'];
+    const signedUrl = await generateUploadUrlForAvatar({
+      user: req.userRef,
+      mime,
+    });
+    res.setHeader('Location', signedUrl);
+    res.sendStatus(200);
   })
 );
 
