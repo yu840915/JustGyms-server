@@ -3,10 +3,22 @@ const { firestore } = require('../firestore');
 const { gymsRef } = require('./firestoreRefs');
 const { createClientError } = require('../clientError');
 
-const generateUploadUrlForGymImage = async ({ gymId, filename }) => {
+/**
+ * @param {Object} params
+ * @param {import('../firestoreTypes').DocumentReference} params.user
+ * @param {String} params.gymId
+ * @param {String} params.filename
+ * @returns
+ */
+const generateUploadUrlForGymImage = async ({ user, gymId, filename }) => {
   const gymSnap = await gymsRef.doc(gymId).get();
   if (!gymSnap.exists) {
     throw createClientError(404, '健身房不存在');
+  }
+  /** @type {import('./gym').Gym} */
+  const { admins } = gymSnap.data();
+  if (admins.findIndex((admin) => admin.id === user.id) === -1) {
+    throw createClientError(403, '沒有存取權限');
   }
   if (!filename) {
     filename = firestore.doc().id;
@@ -24,7 +36,7 @@ const generateUploadUrlForGymImage = async ({ gymId, filename }) => {
 
 const generateDownloadUrlForGymImage = async ({ gymId, filename }) => {
   return await generateDownloadUrl({
-    collection: `gymImages/${gymId}`,
+    collection: `gyms/${gymId}/images`,
     filename,
   });
 };
