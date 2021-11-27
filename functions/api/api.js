@@ -9,6 +9,8 @@ app.use('/me', require('../user/me').routes);
 
 app.use('/users', require('../user').routes);
 
+app.use('/auth', require('../auth').routes);
+
 app.get('/url', (req, res) =>
   res.send(require('../storage/upload').generateUploadUrl())
 );
