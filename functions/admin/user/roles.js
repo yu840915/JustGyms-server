@@ -1,13 +1,13 @@
-const { createClientError } = require('../clientError');
-const { usersRef, firestore, firebaseAdmin } = require('../user/firestoreRefs');
+const { createClientError } = require('../../clientError');
+const { usersRef, firebaseAdmin } = require('../../user/firestoreRefs');
 
 /**
  * @param {Object} params
  * @param {String} params.userId
- * @param {[import('../user/user').Role]} params.roles
+ * @param {[import('../../user/user').Role]} params.roles
  */
 const addUserRoles = async ({ userId, roles }) => {
-  /** @type {import('../user/user').User} */
+  /** @type {import('../../user/user').User} */
   const update = {
     roles: firebaseAdmin.firestore.FieldValue.arrayUnion(...roles),
   };
@@ -22,7 +22,7 @@ const addUserRoles = async ({ userId, roles }) => {
 };
 
 const removeUserRoles = async ({ userId, roles }) => {
-  /** @type {import('../user/user').User} */
+  /** @type {import('../../user/user').User} */
   const update = {
     roles: firebaseAdmin.firestore.FieldValue.arrayRemove(...roles),
   };

@@ -1,4 +1,4 @@
-const Joi = require('@hapi/joi');
+const Joi = require('joi');
 
 const emailAuth = Joi.object({
   email: Joi.string().email().required(),
