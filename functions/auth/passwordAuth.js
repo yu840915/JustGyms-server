@@ -1,6 +1,8 @@
 const { firebaseAdmin } = require('../firebaseAdmin');
 const { request } = require('gaxios');
 const { usersRef } = require('../user/firestoreRefs');
+const { auth_key: apiKey } =
+  require('firebase-functions').config().main_service;
 
 /**
  * Firebase user log-in with email and password.
@@ -21,7 +23,7 @@ async function getUserIdWithEmailPassword(email, password) {
     const res = await request({
       url: 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword',
       method: 'POST',
-      params: { key: configs.firebaseIdToolkitKey },
+      params: { key: apiKey },
       data: { email: email, password: password, returnSecureToken: false },
     });
     if (!res.data) return null;
@@ -47,7 +49,7 @@ async function exchangeForIdToken(customToken) {
   const res = await request({
     url: 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken',
     method: 'POST',
-    params: { key: configs.firebaseIdToolkitKey },
+    params: { key: apiKey },
     data: { token: customToken, returnSecureToken: true },
   });
   if (!res.data) return null;
