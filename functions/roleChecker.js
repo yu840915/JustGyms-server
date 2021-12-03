@@ -20,8 +20,8 @@ class RoleChecker {
     return intersection.length > 0;
   }
 
-  checkRolesMiddleware(req, res, next) {
-    const { roles } = req.user;
+  checkRolesMiddleware(req, res, next) {    
+    const { roles } = req.jwt;
     if (this.checkRoles(roles)) {
       next();
       return;

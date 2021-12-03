@@ -7,7 +7,7 @@ const validationRules = require('./validationRules');
 const validator = require('express-joi-validation').createValidator();
 const RoleChecker = require('../../roleChecker');
 
-const requireAdmin = new RoleChecker(['admin']).checkRolesMiddleware;
+const requireAdmin = new RoleChecker(['admin', 'superuser']).checkRolesMiddleware;
 
 app.put(
   '/:userId/roles',
