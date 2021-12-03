@@ -5,7 +5,10 @@ export interface User {
   cover: String;
   fcmTokens?: [String];
   fcmTopics: [String];
+  roles: [Role]
 }
+
+export type Role = 'superuser' | 'admin'
 
 export interface Favorites {
   user: DocumentReference;
